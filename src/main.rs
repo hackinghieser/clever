@@ -1,105 +1,48 @@
-use crossterm::{
-    event::{self, KeyCode, KeyEventKind},
-    execute,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
-};
+/// Application.
+pub mod app;
 
-use ratatui::{
-    prelude::{CrosstermBackend, Stylize, Terminal},
-    style::{self, Color, Style},
-    widgets::{Block, Borders, Paragraph},
-    Frame,
-};
+/// Terminal events handler.
+pub mod event;
 
-use std::io::{stdout, Result};
+/// Widget renderer.
+pub mod ui;
 
-struct App {
-    counter: i8,
-    should_quit: bool,
-}
+/// Terminal user interface.
+pub mod tui;
 
-fn startup() -> Result<()> {
-    enable_raw_mode()?;
-    execute!(std::io::stderr(), EnterAlternateScreen)?;
-    Ok(())
-}
+/// Application updater.
+pub mod update;
+use app::App;
+use event::{Event, EventHandler};
+use ratatui::{backend::CrosstermBackend, Terminal};
+use tui::Tui;
+use update::update;
 
-fn shutdown() -> Result<()> {
-    execute!(std::io::stderr(), LeaveAlternateScreen)?;
-    disable_raw_mode()?;
-    Ok(())
-}
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Create an application.
+    let mut app = App::new();
 
-fn ui(app: &App, f: &mut Frame) {
-    f.render_widget(
-        Paragraph::new(format!(
-            "
-            Press 'q' or 'Q' to exit the App. \n\
-            Press 'j' or 'k' to increase/decrease the counter \n\
-            Counter {}
-            ",
-            app.counter
-        ))
-        .block(
-            Block::default()
-                .title("Counter App")
-                .title_alignment(ratatui::layout::Alignment::Center)
-                .borders(Borders::ALL)
-                .border_type(ratatui::widgets::BorderType::Rounded),
-        )
-        .style(Style::default().fg(Color::LightYellow))
-        .alignment(ratatui::layout::Alignment::Center),
-        f.size(),
-    );
-}
+    // Initialize the terminal user interface.
+    let backend = CrosstermBackend::new(std::io::stderr());
+    let terminal = Terminal::new(backend)?;
+    let events = EventHandler::new(250);
+    let mut tui = Tui::new(terminal, events);
+    tui.enter()?;
 
-fn update(app: &mut App) -> Result<()> {
-    if event::poll(std::time::Duration::from_millis(50)).unwrap() {
-        if let event::Event::Key(key) = event::read().unwrap() {
-            if key.kind == KeyEventKind::Press {
-                match key.code {
-                    KeyCode::Char('j') => {
-                        if let Some(res) = app.counter.checked_add(1) {
-                            app.counter = res;
-                        } else {
-                            app.counter = 0;
-                        }
-                    }
-                    KeyCode::Char('k') => {
-                        if let Some(res) = app.counter.checked_sub(1) {
-                            app.counter = res;
-                        } else {
-                            app.counter = 0;
-                        }
-                    }
-                    KeyCode::Char('q') => app.should_quit = true,
-                    _ => {}
-                }
-            }
-        }
+    // Start the main loop.
+    while !app.should_quit {
+        // Render the user interface.
+        tui.draw(&mut app)?;
+        // Handle events.
+        match tui.events.next()? {
+            Event::Tick => {}
+            Event::Key(key_event) => update(&mut app, key_event),
+            Event::Mouse(_) => {}
+            Event::Resize(_, _) => {}
+        };
     }
-    Ok(())
-}
 
-fn run() -> Result<()> {
-    let mut terminal = Terminal::new(CrosstermBackend::new(stdout())).unwrap();
-    let mut app = App {
-        counter: 0,
-        should_quit: false,
-    };
-    loop {
-        terminal.draw(|f| ui(&app, f))?;
-        update(&mut app)?;
-        if app.should_quit {
-            break;
-        }
-    }
-    Ok(())
-}
-fn main() -> Result<()> {
-    startup()?;
-    let status = run();
-    shutdown()?;
-    status?;
+    // Exit the user interface.
+    tui.exit()?;
     Ok(())
 }
