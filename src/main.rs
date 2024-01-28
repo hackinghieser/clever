@@ -16,18 +16,17 @@ use std::fs;
 
 use app::App;
 use event::{Event, EventHandler};
-use ratatui::{backend::CrosstermBackend, symbols::line, widgets::TableState, Terminal};
+use ratatui::{backend::CrosstermBackend, widgets::TableState, Terminal};
 use tui::Tui;
 use update::update;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
    let lines = read_file("example.clef");
-    print!("{:?}",lines);
     // Create an application.
     let mut app = App::new();
     app.table_state = TableState::new();
     app.table_state.select(Some(1));
-    app.lines = lines;
+    app.load_lines(&lines);
     // Initialize the terminal user interface.
     let backend = CrosstermBackend::new(std::io::stderr());
     let terminal = Terminal::new(backend)?;
