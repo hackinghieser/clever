@@ -5,14 +5,15 @@ use crossterm::{
 };
 
 use ratatui::{
-    prelude::{CrosstermBackend, Stylize, Terminal},
-    style::{self, Color, Style},
+    prelude::{CrosstermBackend, Terminal},
+    style::{Color, Style},
     widgets::{Block, Borders, Paragraph},
     Frame,
 };
 
 use std::io::{stdout, Result};
 
+pub mod app;
 struct App {
     counter: i8,
     should_quit: bool,
@@ -93,7 +94,7 @@ fn run() -> Result<()> {
         if app.should_quit {
             break;
         }
-    }
+    };
     Ok(())
 }
 fn main() -> Result<()> {
