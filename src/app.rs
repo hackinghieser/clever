@@ -1,7 +1,8 @@
 #[derive(Debug,Default)]
 pub struct App {
     pub should_quit :bool,
-    pub counter: u8
+    pub counter: u8,
+    pub lines : Vec<String>
 }
 
 impl  App {
