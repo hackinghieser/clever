@@ -21,12 +21,8 @@ use tui::Tui;
 use update::update;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-   let lines = read_file("example.clef");
     // Create an application.
-    let mut app = App::new();
-    app.table_state = TableState::new();
-    app.table_state.select(Some(1));
-    app.load_lines(&lines);
+    let mut app = create_app();
     // Initialize the terminal user interface.
     let backend = CrosstermBackend::new(std::io::stderr());
     let terminal = Terminal::new(backend)?;
@@ -50,6 +46,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Exit the user interface.
     tui.exit()?;
     Ok(())
+}
+
+fn create_app() -> App<'static> {
+    let lines = read_file("example.clef");
+    let mut app = App::new();
+    app.table_state = TableState::new();
+    app.table_state.select(Some(0));
+    app.load_lines(&lines);
+    app
 }
 
 fn read_file(file_path: &str) -> Vec<String> {
