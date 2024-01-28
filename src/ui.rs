@@ -1,8 +1,7 @@
 use ratatui::{
     layout::Constraint,
     style::{Style, Stylize},
-    symbols::line,
-    widgets::{Block, Borders, Paragraph, Row, Table, TableState},
+    widgets::{Block, Borders, Row, Table},
     Frame,
 };
 
@@ -10,8 +9,6 @@ use crate::app::App;
 
 pub fn render(app: &mut App, f: &mut Frame) {
     let widths = [Constraint::Length(f.size().width)];
-    let mut table_state = TableState::default();
-    table_state.select(Some(0));
     let mut rows: Vec<Row> = vec![];
     for line in app.lines.clone() {
         let row = Row::new(vec![line.to_string()]);
@@ -37,6 +34,6 @@ pub fn render(app: &mut App, f: &mut Frame) {
             .highlight_style(Style::new().reversed())
             .highlight_symbol(">>"),
         f.size(),
-        &mut table_state,
+        &mut app.table_state,
     )
 }
