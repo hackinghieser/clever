@@ -12,8 +12,8 @@ pub mod tui;
 
 /// Application updater.
 pub mod update;
-use std::fs;
 
+use std::fs;
 use app::App;
 use event::{Event, EventHandler};
 use ratatui::{backend::CrosstermBackend, widgets::TableState, Terminal};
@@ -42,14 +42,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             Event::Resize(_, _) => {}
         };
     }
-
     // Exit the user interface.
     tui.exit()?;
     Ok(())
 }
 
 fn create_app() -> App<'static> {
-    let lines = read_file("example.clef");
+    let lines = read_file("src/example.clef");
     let mut app = App::new();
     app.table_state = TableState::new();
     app.table_state.select(Some(0));

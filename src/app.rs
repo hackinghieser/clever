@@ -49,18 +49,18 @@ impl<'a> App<'a> {
 
     pub fn move_row_up(&mut self) {
         if let Some(selected) = self.table_state.selected() {
-            if selected >= 1 {
+            if selected > 1 {
                 self.table_state.select(Some(selected - 1));
             } else {
-                self.table_state.select(Some(self.rows.len() - 1));
+                self.table_state.select(Some(self.rows.len() -1));
             }
         }
     }
 
     pub fn move_row_down(&mut self) {
         if let Some(selected) = self.table_state.selected() {
-            if selected <= self.rows.len() {
-                self.table_state.select(Some(selected + 1));
+            if selected < self.rows.len() -1 {
+                self.table_state.select(Some(selected+1));
             } else {
                 self.table_state.select(Some(0));
             }
