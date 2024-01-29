@@ -12,16 +12,17 @@ pub mod tui;
 
 /// Application updater.
 pub mod update;
+
+use std::fs;
 use app::App;
 use event::{Event, EventHandler};
-use ratatui::{backend::CrosstermBackend, Terminal};
+use ratatui::{backend::CrosstermBackend, widgets::TableState, Terminal};
 use tui::Tui;
 use update::update;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Create an application.
-    let mut app = App::new();
-
+    let mut app = create_app();
     // Initialize the terminal user interface.
     let backend = CrosstermBackend::new(std::io::stderr());
     let terminal = Terminal::new(backend)?;
@@ -41,8 +42,25 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             Event::Resize(_, _) => {}
         };
     }
-
     // Exit the user interface.
     tui.exit()?;
     Ok(())
+}
+
+fn create_app() -> App<'static> {
+    let lines = read_file("src/example.clef");
+    let mut app = App::new();
+    app.table_state = TableState::new();
+    app.table_state.select(Some(0));
+    app.load_lines(&lines);
+    app
+}
+
+fn read_file(file_path: &str) -> Vec<String> {
+  let content = fs::read_to_string(file_path).unwrap();
+  let mut lines : Vec<String> = vec![];
+  for line in content.lines() {
+      lines.push(line.to_string());
+  }
+  lines
 }
