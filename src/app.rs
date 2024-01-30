@@ -1,5 +1,5 @@
 use ratatui::widgets::{Cell, Row, TableState};
-use chrono::{format::Fixed, prelude::*};
+use chrono::{prelude::*};
 #[derive(Debug, Default)]
 pub struct App<'a> {
     pub should_quit: bool,
@@ -25,9 +25,8 @@ impl<'a> App<'a> {
         let mut rows: Vec<Row<'_>> = vec![];
         let time  = DateTime::parse_from_str("2014-11-28 21:00:09 +09:00","%Y-%m-%d %H:%M:%S %z");
         let time = time.unwrap().format("%d.%m.%y %H:%M:%S");
-        for (index, line) in lines.iter().enumerate() {
+        for line in lines {
             let row = Row::new(vec![
-                Cell::from(index.to_string()),
                 Cell::from(time.to_string()),
                 Cell::from(line.to_string()),
             ]);
@@ -40,32 +39,20 @@ impl<'a> App<'a> {
         self.should_quit = true;
     }
 
-    pub fn increment_counter(&mut self) {
-        if let Some(res) = self.counter.checked_add(1) {
-            self.counter = res;
-        }
-    }
-
-    pub fn decrement_counter(&mut self) {
-        if let Some(res) = self.counter.checked_sub(1) {
-            self.counter = res;
-        }
-    }
-
-    pub fn move_row_up(&mut self) {
+    pub fn move_row_up(&mut self, range: usize) {
         if let Some(selected) = self.table_state.selected() {
-            if selected > 1 {
-                self.table_state.select(Some(selected - 1));
+            if selected > range {
+                self.table_state.select(Some(selected - range));
             } else {
                 self.table_state.select(Some(self.rows.len() - 1));
             }
         }
     }
 
-    pub fn move_row_down(&mut self) {
+    pub fn move_row_down(&mut self, range: usize) {
         if let Some(selected) = self.table_state.selected() {
-            if selected < self.rows.len() - 1 {
-                self.table_state.select(Some(selected + 1));
+            if selected < self.rows.len() - range {
+                self.table_state.select(Some(selected + range));
             } else {
                 self.table_state.select(Some(0));
             }

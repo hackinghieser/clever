@@ -1,5 +1,5 @@
 use ratatui::{
-    layout::{Constraint, Direction, Layout}, style::{Style, Stylize}, symbols::line::{BOTTOM_LEFT, TOP_LEFT}, widgets::{Block, Borders, Row, Table}, Frame
+    layout::{Constraint, Direction, Layout}, style::{Style, Stylize}, widgets::{Block, Borders, Row, Table}, Frame
 };
 use unicode_width::UnicodeWidthStr;
 
@@ -17,12 +17,12 @@ pub fn render(app: &mut App, f: &mut Frame) {
 
     let max_index_length: String = app.rows.len().to_string();
     UnicodeWidthStr::width(max_index_length.as_str());
-    let widths = [Constraint::Length(7), Constraint::Length(20),Constraint::Max(100)];
+    let widths = [ Constraint::Length(20),Constraint::Max(100)];
 
     let table = Table::new(app.rows.clone(), widths)
         .style(Style::new().blue())
         .column_spacing(0)
-        .header(Row::new(vec!["#", "Time", "Message"]).style(Style::new().bold()))
+        .header(Row::new(vec!["Time", "Message"]).style(Style::new().bold()))
         .block(
             Block::default()
                 .title("Clever").title_position(ratatui::widgets::block::Position::Top)
