@@ -66,7 +66,6 @@ fn read_file(file_path: &str) -> Vec<String> {
   for line in content.lines() {
       lines.push(line.to_string());
       let c = ClefLine::new(line);
-      println!("{:?}",c);
   }
   lines
 }
