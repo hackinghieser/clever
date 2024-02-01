@@ -13,8 +13,12 @@ pub mod tui;
 /// Application updater.
 pub mod update;
 
+// clef parser
+pub mod clef;
+
 use std::fs;
 use app::App;
+use clef::ClefLine;
 use event::{Event, EventHandler};
 use ratatui::{backend::CrosstermBackend, widgets::TableState, Terminal};
 use tui::Tui;
