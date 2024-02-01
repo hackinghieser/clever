@@ -58,11 +58,12 @@ impl<'a> ClefLine<'a> {
         let end_bracket = "}";
         let mut base = self.template.clone();
         let json: Value = serde_json::from_str(self.data.as_str()).unwrap();
-
+        println!("JSON {}", base.to_string());
         loop {
             let start = base.find(start_bracket).unwrap_or_default();
             let end = base.find(end_bracket).unwrap_or_default();
-            if start == 0 {
+            println!("START {}", start);
+            if end == 0 {
                 break;
             }
             let data_value = &base[start + 1..end];
@@ -75,6 +76,7 @@ impl<'a> ClefLine<'a> {
             if let Some(string) = json_value.as_str() {
                 template_value = string.to_string();
             }
+            println!("JSON VALUE {}", template_value.to_string());
             base.replace_range(start..end + 1, template_value.as_str());
         }
    

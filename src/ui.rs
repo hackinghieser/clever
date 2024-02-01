@@ -30,7 +30,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
     }
     let table = Table::new(clef_rows, widths)
         .style(Style::new().blue())
-        .column_spacing(0)
+        .column_spacing(1)
         .header(Row::new(vec!["Time", "Message"]).style(Style::new().bold()))
         .block(
             Block::default()
