@@ -1,5 +1,9 @@
 use ratatui::{
-    layout::{Constraint, Direction, Layout}, style::{Style, Stylize}, widgets::{Block, Borders, Row, Table}, Frame
+    layout::{Constraint, Direction, Layout},
+    style::{Style, Stylize},
+    symbols::line,
+    widgets::{Block, Borders, Row, Table},
+    Frame,
 };
 use unicode_width::UnicodeWidthStr;
 
@@ -17,18 +21,27 @@ pub fn render(app: &mut App, f: &mut Frame) {
 
     let max_index_length: String = app.rows.len().to_string();
     UnicodeWidthStr::width(max_index_length.as_str());
-    let widths = [ Constraint::Length(20),Constraint::Max(100)];
+    let widths = [Constraint::Length(20), Constraint::Max(100)];
 
-    let table = Table::new(app.rows.clone(), widths)
+    let mut clef_rows: Vec<Row> = vec![];
+
+    for line in &app.lines {
+        clef_rows.push(line.row.clone());
+    }
+    let table = Table::new(clef_rows, widths)
         .style(Style::new().blue())
         .column_spacing(0)
         .header(Row::new(vec!["Time", "Message"]).style(Style::new().bold()))
         .block(
             Block::default()
-                .title("Clever").title_position(ratatui::widgets::block::Position::Top)
+                .title("Clever")
+                .title_position(ratatui::widgets::block::Position::Top)
                 .borders(Borders::ALL)
                 .border_type(ratatui::widgets::BorderType::Rounded)
-                .title("Quit:'Ctrl-q'").title_position(ratatui::widgets::block::Position::Bottom).title_alignment(ratatui::layout::Alignment::Left).title_style(Style::default().fg(ratatui::style::Color::Yellow))
+                .title("Quit:'Ctrl-q'")
+                .title_position(ratatui::widgets::block::Position::Bottom)
+                .title_alignment(ratatui::layout::Alignment::Left)
+                .title_style(Style::default().fg(ratatui::style::Color::Yellow)),
         )
         .style(Style::default().fg(ratatui::style::Color::Yellow))
         .highlight_style(Style::new().reversed());
@@ -42,7 +55,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
         .border_style(Style::default().fg(ratatui::style::Color::Yellow))
         .style(Style::default());
 
-        let chart = Block::default()
+    let chart = Block::default()
         .borders(Borders::ALL)
         .border_type(ratatui::widgets::BorderType::Rounded)
         .title("Chart")

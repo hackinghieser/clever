@@ -65,7 +65,6 @@ fn read_file(file_path: &str) -> Vec<String> {
   let mut lines : Vec<String> = vec![];
   for line in content.lines() {
       lines.push(line.to_string());
-      let c = ClefLine::new(line);
   }
   lines
 }
