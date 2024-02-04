@@ -8,6 +8,7 @@ pub struct App<'a> {
     pub lines: Vec<ClefLine<'a>>,
     pub rows: Vec<Row<'a>>,
     pub table_state: TableState,
+    pub file_path: String
 }
 
 
