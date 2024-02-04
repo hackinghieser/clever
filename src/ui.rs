@@ -33,6 +33,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
         .block(
             Block::default()
                 .title("Clever")
+                .title(block::Title::from(app.file_path.as_str()).position(block::Position::Top).alignment(ratatui::layout::Alignment::Left))
                 .title_position(ratatui::widgets::block::Position::Top)
                 .title_alignment(ratatui::layout::Alignment::Center)
                 .borders(Borders::ALL)

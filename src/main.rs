@@ -17,15 +17,31 @@ pub mod update;
 pub mod clef;
 
 use app::App;
+use clap::Parser;
 use event::{Event, EventHandler};
 use ratatui::{backend::CrosstermBackend, widgets::TableState, Terminal};
 use std::fs;
 use tui::Tui;
 use update::update;
+#[derive(Parser, Debug)]
+#[command(author, version, about)]
+struct Args {
+    name: Option<String>,
+}
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    let args = Args::parse();
+    let path:String;
+    match args.name {
+        Some(p) => path = p,
+        None => {
+            println!("No file path provided");
+            return Ok(())
+        }
+    }
     // Create an application.
-    let mut app = create_app();
+    let mut app = create_app(path);
     // Initialize the terminal user interface.
     let backend = CrosstermBackend::new(std::io::stderr());
     let terminal = Terminal::new(backend)?;
@@ -50,9 +66,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn create_app() -> App<'static> {
-    let lines = read_file("src/example.clef");
+fn create_app(path: String) -> App<'static> {
+    let lines = read_file(path.as_str());
     let mut app = App::new();
+    app.file_path = path;
     app.table_state = TableState::new();
     app.table_state.select(Some(0));
     app.load_lines(&lines);
