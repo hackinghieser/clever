@@ -1,5 +1,4 @@
-use ratatui::widgets::{Cell, Row, TableState};
-use chrono::{prelude::*};
+use ratatui::widgets::{Row, TableState};
 
 use crate::clef::ClefLine;
 #[derive(Debug, Default)]
@@ -25,8 +24,7 @@ impl<'a> App<'a> {
 
     fn create_cells_from_line(lines: &Vec<String>) -> Vec<ClefLine<'a>> {
         let mut clef_lines: Vec<ClefLine<'_>> = vec![];
-        let time  = DateTime::parse_from_str("2014-11-28 21:00:09 +09:00","%Y-%m-%d %H:%M:%S %z");
-        let time = time.unwrap().format("%d.%m.%y %H:%M:%S");
+      
         for line in lines {
             clef_lines.push(ClefLine::new(line))
         }

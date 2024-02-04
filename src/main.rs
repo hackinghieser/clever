@@ -16,11 +16,10 @@ pub mod update;
 // clef parser
 pub mod clef;
 
-use std::fs;
 use app::App;
-use clef::ClefLine;
 use event::{Event, EventHandler};
 use ratatui::{backend::CrosstermBackend, widgets::TableState, Terminal};
+use std::fs;
 use tui::Tui;
 use update::update;
 
@@ -61,10 +60,10 @@ fn create_app() -> App<'static> {
 }
 
 fn read_file(file_path: &str) -> Vec<String> {
-  let content = fs::read_to_string(file_path).unwrap();
-  let mut lines : Vec<String> = vec![];
-  for line in content.lines() {
-      lines.push(line.to_string());
-  }
-  lines
+    let content = fs::read_to_string(file_path).unwrap();
+    let mut lines: Vec<String> = vec![];
+    for line in content.lines() {
+        lines.push(line.to_string());
+    }
+    lines
 }

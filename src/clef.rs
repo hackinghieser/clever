@@ -1,4 +1,7 @@
-use ratatui::widgets::{Cell, Row};
+use std::fmt::Debug;
+
+use chrono::DateTime;
+use ratatui::{style::Style, widgets::{Cell, Row}};
 use serde::Deserialize;
 use serde_json::{self, Value};
 
@@ -45,9 +48,11 @@ impl<'a> ClefLine<'a> {
         let mut clef: ClefLine = serde_json::from_str(line).unwrap();
         clef.data = line.to_string();
         clef.template = clef.render();
-        println!("{}", clef.template);
+        let time  = DateTime::parse_from_rfc3339(clef.time.as_str());
+        clef.time = time.unwrap().format("%d.%m.%y %H:%M:%S").to_string();
         clef.row = Row::new(vec![
             Cell::from(clef.time.to_string()),
+            Cell::from(clef.level.to_string()).style(Style::default().fg(ratatui::style::Color::Blue)),
             Cell::from(clef.template.to_string()),
         ]);
         clef
@@ -58,11 +63,9 @@ impl<'a> ClefLine<'a> {
         let end_bracket = "}";
         let mut base = self.template.clone();
         let json: Value = serde_json::from_str(self.data.as_str()).unwrap();
-        println!("JSON {}", base.to_string());
         loop {
             let start = base.find(start_bracket).unwrap_or_default();
             let end = base.find(end_bracket).unwrap_or_default();
-            println!("START {}", start);
             if end == 0 {
                 break;
             }
@@ -76,7 +79,6 @@ impl<'a> ClefLine<'a> {
             if let Some(string) = json_value.as_str() {
                 template_value = string.to_string();
             }
-            println!("JSON VALUE {}", template_value.to_string());
             base.replace_range(start..end + 1, template_value.as_str());
         }
    
