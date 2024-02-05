@@ -16,11 +16,12 @@ pub mod update;
 // clef parser
 pub mod clef;
 
+use std::{ fs, io::{self}};
+
 use app::App;
 use clap::Parser;
 use event::{Event, EventHandler};
 use ratatui::{backend::CrosstermBackend, widgets::TableState, Terminal};
-use std::fs;
 use tui::Tui;
 use update::update;
 #[derive(Parser, Debug)]
@@ -30,18 +31,17 @@ struct Args {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-
     let args = Args::parse();
-    let path:String;
+    let path: String;
     match args.name {
         Some(p) => path = p,
         None => {
             println!("No file path provided");
-            return Ok(())
+            return Ok(());
         }
     }
     // Create an application.
-    let mut app = create_app(path);
+    let mut app = create_app(path)?;
     // Initialize the terminal user interface.
     let backend = CrosstermBackend::new(std::io::stderr());
     let terminal = Terminal::new(backend)?;
@@ -66,21 +66,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn create_app(path: String) -> App<'static> {
-    let lines = read_file(path.as_str());
+fn create_app(path: String) -> Result<App<'static>, io::Error> {
+    let lines = read_file(path.as_str())?;
     let mut app = App::new();
     app.file_path = path;
     app.table_state = TableState::new();
     app.table_state.select(Some(0));
     app.load_lines(&lines);
-    app
+    Ok(app)
 }
 
-fn read_file(file_path: &str) -> Vec<String> {
-    let content = fs::read_to_string(file_path).unwrap();
+fn read_file(file_path: &str) -> Result<Vec<String>, io::Error> {
+    let content = fs::read_to_string(file_path)?;
     let mut lines: Vec<String> = vec![];
     for line in content.lines() {
         lines.push(line.to_string());
     }
-    lines
+    Ok(lines)
 }

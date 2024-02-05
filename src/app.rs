@@ -27,7 +27,7 @@ impl<'a> App<'a> {
         let mut clef_lines: Vec<ClefLine<'_>> = vec![];
       
         for line in lines {
-            clef_lines.push(ClefLine::new(line))
+            clef_lines.push(ClefLine::new(line).unwrap())
         }
         clef_lines
     }
