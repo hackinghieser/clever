@@ -11,7 +11,6 @@ struct Detail {
     level: String,
     exception: String,
     event_id: String,
-    render_count: u16,
 }
 
 use crate::{app::App, clef::ClefLine};
@@ -54,9 +53,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
         level: selected_row.level.to_string(),
         exception: selected_row.exception.to_string(),
         event_id: selected_row.eventid.to_string(),
-        render_count: 3u16,
     };
-    let render_count = format!("Count: {}", detail.render_count.to_string());
     let table = Table::new(clef_rows, widths)
         .style(Style::new().blue())
         .column_spacing(0)
@@ -84,7 +81,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
         .borders(Borders::ALL)
         .title(block::Title::from("Detail").position(block::Position::Top))
         .border_type(ratatui::widgets::BorderType::Rounded)
-        .title("Quit:'Q'  Details: 'D'  Sort: 'S")
+        .title("Quit:'Q'")
         .title_position(ratatui::widgets::block::Position::Bottom)
         .title_style(Style::default().add_modifier(Modifier::BOLD))
         .title_alignment(ratatui::layout::Alignment::Left)
@@ -95,8 +92,8 @@ pub fn render(app: &mut App, f: &mut Frame) {
     f.render_widget(stats, main[1]);
 
     let status_details = Paragraph::new(format!(
-        "{}|{}    {}   {}  {}",
-        detail.timestap, detail.level, detail.exception, detail.event_id, render_count
+        "{}|{}    {}   {}  ",
+        detail.timestap, detail.level, detail.exception, detail.event_id
     ))
     .style(Style::default().fg(ratatui::style::Color::Yellow))
     .block(Block::new().padding(block::Padding { left: 1, right: 1, top: 1, bottom: 0 }));

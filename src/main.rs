@@ -27,13 +27,13 @@ use update::update;
 #[derive(Parser, Debug)]
 #[command(author, version, about)]
 struct Args {
-    name: Option<String>,
+    file: Option<String>,
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
     let path: String;
-    match args.name {
+    match args.file {
         Some(p) => path = p,
         None => {
             println!("No file path provided");
