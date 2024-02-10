@@ -23,8 +23,8 @@ jobs:
     - name: 'Upload Artifact'
       uses: actions/upload-artifact@v4
       with:
-        name: clever-windows
-        path: /home/runner/work/clever/clever/target/debug/clever.exe
+        name: clever-linux
+        path: /home/runner/work/clever/clever/target/debug/clever
         retention-days: 5
 
         
@@ -41,7 +41,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: clever-windows
-        path: /home/runner/work/clever/clever/target/debug/clever.exe
+        path: D:\a\clever\clever
         retention-days: 5
   
   build-mac:
@@ -56,7 +56,7 @@ jobs:
     - name: 'Upload Artifact'
       uses: actions/upload-artifact@v4
       with:
-        name: clever-windows
+        name: clever-macos
         path: /home/runner/work/clever/clever/target/debug/clever
         retention-days: 5
 
