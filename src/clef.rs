@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::{fmt::Debug, io::Error};
 
 use chrono::DateTime;
 use ratatui::{style::Style, widgets::{Cell, Row}};
@@ -44,10 +44,10 @@ pub struct ClefLine<'a> {
 
 impl<'a> ClefLine<'a> {
 
-    pub fn new(line: &str) -> Self {
+    pub fn new(line: &str) -> Result<Self, Error> {
         let mut clef: ClefLine = serde_json::from_str(line).unwrap();
         clef.data = line.to_string();
-        clef.template = clef.render();
+        clef.template = clef.render()?;
         let time  = DateTime::parse_from_rfc3339(clef.time.as_str());
         clef.time = time.unwrap().format("%d.%m.%y %H:%M:%S").to_string();
         clef.row = Row::new(vec![
@@ -55,10 +55,10 @@ impl<'a> ClefLine<'a> {
             Cell::from(clef.level.to_string()).style(Style::default().fg(ratatui::style::Color::Blue)),
             Cell::from(clef.template.to_string()),
         ]);
-        clef
+        Ok(clef)
     }
 
-    pub fn render(&mut self) -> String {
+    pub fn render(&mut self) -> Result<String,Error> {
         let start_bracket = "{";
         let end_bracket = "}";
         let mut base = self.template.clone();
@@ -81,7 +81,6 @@ impl<'a> ClefLine<'a> {
             }
             base.replace_range(start..end + 1, template_value.as_str());
         }
-   
-        base
+        Ok(base)
     }
 }
