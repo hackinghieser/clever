@@ -21,11 +21,12 @@ jobs:
     - name: Run tests
       run: cargo test --verbose
     - name: 'Upload Artifact'
-    - uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v4
       with:
-        name: clever-linux
-        path: /home/runner/work/clever/clever
+        name: clever-windows
+        path: /home/runner/work/clever/clever/target/release/clever.exe
         retention-days: 5
+
         
   build-windows:
     runs-on: windows-latest
@@ -37,8 +38,9 @@ jobs:
     - name: Run tests
       run: cargo test --verbose
     - name: 'Upload Artifact'
-    - uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v4
       with:
         name: clever-windows
-        path: /home/runner/work/clever/clever
+        path: /home/runner/work/clever/clever/target/release/clever.exe
         retention-days: 5
+
