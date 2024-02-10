@@ -1,4 +1,4 @@
-name: Rust
+name: Clever Release Build
 
 on: [workflow_dispatch]
 env:
