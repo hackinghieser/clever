@@ -9,34 +9,34 @@ use serde_json::{self, Value};
 pub struct ClefLine<'a> {
     #[serde(rename = "@t")]
     #[serde(default)]
-    time: String,
+    pub time: String,
 
     #[serde(rename = "@m")]
     #[serde(default)]
-    message: String,
+    pub message: String,
 
     #[serde(rename = "@mt")]
     #[serde(default)]
-    template: String,
+    pub template: String,
 
     #[serde(rename = "@l")]
     #[serde(default)]
-    level: String,
+    pub level: String,
 
     #[serde(rename = "@x")]
     #[serde(default)]
-    exception: String,
+    pub exception: String,
 
     #[serde(rename = "@i")]
     #[serde(default)]
-    eventid: String,
+    pub eventid: String,
 
     #[serde(rename = "@r")]
     #[serde(default)]
-    renderings: String,
+    pub renderings: String,
 
     #[serde(skip)]
-    data: String,
+    pub data: String,
 
     #[serde(skip)]
     pub row: Row<'a>,
