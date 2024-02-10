@@ -1,5 +1,3 @@
-use std::os::macos::raw::stat;
-
 use ratatui::{
     layout::{Constraint, Direction, Layout},
     style::{Modifier, Style, Stylize},
