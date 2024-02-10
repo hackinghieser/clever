@@ -24,7 +24,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: clever-windows
-        path: /home/runner/work/clever/clever/target/release/clever.exe
+        path: /home/runner/work/clever/clever/target/debug/clever.exe
         retention-days: 5
 
         
@@ -41,6 +41,6 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: clever-windows
-        path: /home/runner/work/clever/clever/target/release/clever.exe
+        path: /home/runner/work/clever/clever/target/debug/clever.exe
         retention-days: 5
 
