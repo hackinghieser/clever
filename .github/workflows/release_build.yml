@@ -1,0 +1,39 @@
+name: Rust
+
+on: [workflow_dispatch]
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-linux:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build
+      run: cargo build --release
+    - name: Run tests
+      run: cargo test --verbose
+    - name: 'Upload Artifact'
+      uses: actions/upload-artifact@v4
+      with:
+        name: clever-linux
+        path: /home/runner/work/clever/clever/target/release/clever
+        retention-days: 5
+        
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build
+      run: cargo build --verbose
+    - name: Run tests
+      run: cargo test --verbose
+    - name: 'Upload Artifact'
+      uses: actions/upload-artifact@v4
+      with:
+        name: clever-windows
+        path: /home/runner/work/clever/clever/target/release/clever.exe
+        retention-days: 5
