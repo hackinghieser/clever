@@ -51,8 +51,7 @@ impl<'a> ClefLine<'a> {
         let time  = DateTime::parse_from_rfc3339(clef.time.as_str());
         clef.time = time.unwrap().format("%d.%m.%y %H:%M:%S").to_string();
         clef.row = Row::new(vec![
-            Cell::from(clef.time.to_string()),
-            Cell::from(clef.level.to_string()).style(Style::default().fg(ratatui::style::Color::Blue)),
+            Cell::from(["[".to_string(),clef.time.to_string(),"|".to_string(), clef.level.to_string(), "]".to_string()].join("")),
             Cell::from(clef.template.to_string()),
         ]);
         Ok(clef)
