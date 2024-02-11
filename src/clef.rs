@@ -1,7 +1,7 @@
 use std::{fmt::Debug, io::Error};
 
 use chrono::DateTime;
-use ratatui::{style::Style, widgets::{Cell, Row}};
+use ratatui::widgets::{Cell, Row};
 use serde::Deserialize;
 use serde_json::{self, Value};
 
