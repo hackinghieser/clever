@@ -57,7 +57,7 @@ jobs:
       uses: actions/upload-artifact@v4.3.1
       with:
         name: clever-macos
-        path: /Users/runner/work/clever/clever
+        path: /Users/runner/work/clever/clever/target/debug/clever
         retention-days: 5
 
 
