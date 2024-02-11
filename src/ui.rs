@@ -1,3 +1,4 @@
+use crossterm::style::style;
 use ratatui::{
     layout::{Constraint, Direction, Layout},
     style::{Modifier, Style, Stylize},
@@ -16,11 +17,7 @@ struct Detail {
 use crate::{app::App, clef::ClefLine};
 
 pub fn render(app: &mut App, f: &mut Frame) {
-    let widths = [
-        Constraint::Length(20),
-        Constraint::Max(5),
-        Constraint::Percentage(100),
-    ];
+    let widths = [Constraint::Length(30), Constraint::Percentage(100)];
     let mut clef_rows: Vec<Row> = vec![];
     let main = Layout::default()
         .direction(Direction::Vertical)
@@ -46,7 +43,9 @@ pub fn render(app: &mut App, f: &mut Frame) {
         clef_rows.push(line.row.clone());
     }
 
-    let selected_row: &ClefLine = app.lines.get(app.table_state.selected().unwrap()).unwrap();
+    let selected_row_index = app.table_state.selected().unwrap();
+    let selected_row: &ClefLine = app.lines.get(selected_row_index).unwrap();
+    let selection_text = format!("{}|{}", selected_row_index, clef_rows.len() - 1);
     let detail: Detail = Detail {
         timestap: selected_row.time.to_string(),
         message: selected_row.template.to_string(),
@@ -55,9 +54,8 @@ pub fn render(app: &mut App, f: &mut Frame) {
         event_id: selected_row.eventid.to_string(),
     };
     let table = Table::new(clef_rows, widths)
-        .style(Style::new().blue())
         .column_spacing(0)
-        .header(Row::new(vec!["Time", "Log", "Message Template"]).style(Style::new().bold()))
+        .header(Row::new(vec!["Time|Level", "Message"]).style(Style::new().bold()))
         .block(
             Block::default()
                 .title("Clever")
@@ -65,6 +63,11 @@ pub fn render(app: &mut App, f: &mut Frame) {
                     block::Title::from(app.file_path.as_str())
                         .position(block::Position::Top)
                         .alignment(ratatui::layout::Alignment::Left),
+                )
+                .title(
+                    block::Title::from(selection_text)
+                        .position(block::Position::Bottom)
+                        .alignment(ratatui::layout::Alignment::Center),
                 )
                 .title_position(ratatui::widgets::block::Position::Top)
                 .title_alignment(ratatui::layout::Alignment::Center)
@@ -92,11 +95,16 @@ pub fn render(app: &mut App, f: &mut Frame) {
     f.render_widget(stats, main[1]);
 
     let status_details = Paragraph::new(format!(
-        "{}|{}    {}   {}  ",
+        "{} | {}    {}   {}  ",
         detail.timestap, detail.level, detail.exception, detail.event_id
     ))
     .style(Style::default().fg(ratatui::style::Color::Yellow))
-    .block(Block::new().padding(block::Padding { left: 1, right: 1, top: 1, bottom: 0 }));
+    .block(Block::new().padding(block::Padding {
+        left: 1,
+        right: 1,
+        top: 1,
+        bottom: 0,
+    }));
 
     f.render_widget(status_details, detail_header[0]);
 

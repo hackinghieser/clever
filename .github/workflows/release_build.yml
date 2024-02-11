@@ -34,7 +34,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: clever-windows
-        path: D:\a\clever\clever
+        path: D:\a\clever\clever\target\release\clever.exe
         retention-days: 5
 
   build-mac:
