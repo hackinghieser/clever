@@ -43,21 +43,29 @@ pub struct ClefLine<'a> {
 }
 
 impl<'a> ClefLine<'a> {
-
     pub fn new(line: &str) -> Result<Self, Error> {
         let mut clef: ClefLine = serde_json::from_str(line).unwrap();
         clef.data = line.to_string();
         clef.template = clef.render()?;
-        let time  = DateTime::parse_from_rfc3339(clef.time.as_str());
+        let time = DateTime::parse_from_rfc3339(clef.time.as_str());
         clef.time = time.unwrap().format("%d.%m.%y %H:%M:%S").to_string();
         clef.row = Row::new(vec![
-            Cell::from(["[".to_string(),clef.time.to_string(),"|".to_string(), clef.level.to_string(), "]".to_string()].join("")),
+            Cell::from(
+                [
+                    "[".to_string(),
+                    clef.time.to_string(),
+                    "|".to_string(),
+                    clef.level.to_string(),
+                    "]".to_string(),
+                ]
+                .join(""),
+            ),
             Cell::from(clef.template.to_string()),
         ]);
         Ok(clef)
     }
 
-    pub fn render(&mut self) -> Result<String,Error> {
+    pub fn render(&mut self) -> Result<String, Error> {
         let start_bracket = "{";
         let end_bracket = "}";
         let mut base = self.template.clone();
