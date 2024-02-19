@@ -16,10 +16,18 @@ pub mod update;
 // clef parser
 pub mod clef;
 
+pub mod event_log_level;
+
 use std::{
     fs,
     io::{self},
 };
+
+#[derive(Parser, Debug)]
+#[command(author, version, about)]
+struct Args {
+    file: Option<String>,
+}
 
 use app::App;
 use clap::Parser;
@@ -27,11 +35,6 @@ use event::{Event, EventHandler};
 use ratatui::{backend::CrosstermBackend, widgets::{ListState, TableState}, Terminal};
 use tui::Tui;
 use update::update;
-#[derive(Parser, Debug)]
-#[command(author, version, about)]
-struct Args {
-    file: Option<String>,
-}
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();

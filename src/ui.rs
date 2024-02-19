@@ -1,12 +1,9 @@
-use std::ops::Deref;
-
 use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
-    style::{Color, Modifier, Style, Styled, Stylize},
-    symbols::border::{self, ROUNDED},
+    style::{Color, Modifier, Style, Stylize},
     widgets::{
         block::{self, Title},
-        Block, Borders, Clear, List, ListDirection, ListState, Paragraph, Row, Table, Wrap,
+        Block, Borders, Clear, List, ListDirection, Paragraph, Row, Table, TableState, Wrap,
     },
     Frame,
 };
@@ -28,7 +25,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
     match app.app_state {
         AppState::ITERATING => {
             let widths = [Constraint::Length(30), Constraint::Percentage(100)];
-            let mut clef_rows: Vec<Row> = vec![];
+            let mut clef_rows: Vec<(&ClefLine, Row)> = vec![];
             let main = Layout::default()
                 .direction(Direction::Vertical)
                 .constraints([Constraint::Percentage(70), Constraint::Percentage(30)])
@@ -50,12 +47,20 @@ pub fn render(app: &mut App, f: &mut Frame) {
                 .split(detail_area[1]);
 
             for line in &app.lines {
-                clef_rows.push(line.row.clone());
+                let event_level = line.level.to_string();
+                if app
+                    .event_types
+                    .iter()
+                    .any(|level| level.value == event_level && level.selected)
+                {
+                    clef_rows.push((&line, line.row.clone()));
+                }
             }
 
             let selected_row_index = app.event_table_state.selected().unwrap();
-            let selected_row: &ClefLine = app.lines.get(selected_row_index).unwrap();
+            let selected_row: &ClefLine = clef_rows.get(selected_row_index).unwrap().0;
             let selection_text = format!("{}|{}", selected_row_index, clef_rows.len() - 1);
+
             let detail: Detail = Detail {
                 timestap: selected_row.time.to_string(),
                 message: selected_row.template.to_string(),
@@ -63,7 +68,8 @@ pub fn render(app: &mut App, f: &mut Frame) {
                 exception: selected_row.exception.to_string(),
                 event_id: selected_row.eventid.to_string(),
             };
-            let table = Table::new(clef_rows, widths)
+
+            let table = Table::new(clef_rows.iter().map(|v| v.1.clone()), widths)
                 .column_spacing(0)
                 .header(Row::new(vec!["Time|Level", "Message"]).style(Style::new().bold()))
                 .block(
@@ -87,7 +93,6 @@ pub fn render(app: &mut App, f: &mut Frame) {
                 )
                 .style(Style::default().fg(ratatui::style::Color::Yellow))
                 .highlight_style(Style::default().reversed());
-
             f.render_stateful_widget(table, main[0], &mut app.event_table_state);
 
             let stats = Block::default()
@@ -132,10 +137,11 @@ pub fn render(app: &mut App, f: &mut Frame) {
         AppState::FILTERING => {
             f.render_widget(Clear, f.size());
             let area = centered_rect(40, 30, f.size());
-            let list = List::new(app.event_types.to_owned())
+            let type_list: Vec<String> = app.event_types.iter().map(|t| t.to_string()).collect();
+            let list = List::new(type_list)
                 .block(
                     Block::default()
-                        .title("List")
+                        .title("Event Levels")
                         .borders(Borders::ALL)
                         .style(Style::default().fg(Color::Yellow))
                         .border_type(block::BorderType::Rounded)

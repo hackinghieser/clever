@@ -1,4 +1,4 @@
-use crate::clef::ClefLine;
+use crate::{clef::ClefLine, event_log_level::EventLogLevel};
 use ratatui::widgets::{ListState, Row, TableState};
 
 #[derive(Debug)]
@@ -21,7 +21,7 @@ pub struct App<'a> {
     pub event_table_state: TableState,
     pub filter_list_state: ListState,
     pub file_path: String,
-    pub event_types: Vec<String>,
+    pub event_types: Vec<EventLogLevel>,
     pub app_state: AppState,
 }
 
@@ -48,11 +48,16 @@ impl<'a> App<'a> {
 
     pub fn get_event_types(&mut self, events: &Vec<ClefLine>) {
         for event in events {
-            if !self.event_types.contains(&event.level) && &event.level != "" {
-                self.event_types.push(event.level.to_string());
+            if !self.event_types.iter().any(|t| t.value == event.level) {
+                    self.event_types.push(EventLogLevel {
+                        selected: true,
+                        value: event.level.to_string(),
+                    });
             }
         }
-        println!("{:?}", self.event_types);
+        self.event_types
+            .iter()
+            .for_each(|v| println!("{}", v.value));
     }
 
     pub fn quit(&mut self) {
