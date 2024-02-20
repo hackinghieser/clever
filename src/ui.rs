@@ -3,7 +3,7 @@ use ratatui::{
     style::{Color, Modifier, Style, Stylize},
     widgets::{
         block::{self, Title},
-        Block, Borders, Clear, List, ListDirection, Paragraph, Row, Table, TableState, Wrap,
+        Block, Borders, Clear, List, ListDirection, Paragraph, Row, Table, Wrap,
     },
     Frame,
 };
@@ -57,8 +57,15 @@ pub fn render(app: &mut App, f: &mut Frame) {
                 }
             }
 
-            let selected_row_index = app.event_table_state.selected().unwrap();
-            let selected_row: &ClefLine = clef_rows.get(selected_row_index).unwrap().0;
+            let mut selected_row_index = app.event_table_state.selected().unwrap();
+            let selected_row: &ClefLine = match clef_rows.get(selected_row_index) {
+                None => {
+                    app.event_table_state.select(Some(0));
+                    selected_row_index = 0;
+                    clef_rows.get(0).unwrap().0
+                }
+                Some(val) => val.0,
+            };
             let selection_text = format!("{}|{}", selected_row_index, clef_rows.len() - 1);
 
             let detail: Detail = Detail {

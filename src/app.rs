@@ -66,7 +66,7 @@ impl<'a> App<'a> {
 
     pub fn move_row_up(&mut self, range: usize) {
         if let Some(selected) = self.event_table_state.selected() {
-            if selected >= range {
+            if selected >= range +1 {
                 self.event_table_state.select(Some(selected - range));
             } else {
                 self.event_table_state.select(Some(self.lines.len() - 1));
