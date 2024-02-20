@@ -16,19 +16,25 @@ pub mod update;
 // clef parser
 pub mod clef;
 
-use std::{ fs, io::{self}};
+pub mod event_log_level;
 
-use app::App;
-use clap::Parser;
-use event::{Event, EventHandler};
-use ratatui::{backend::CrosstermBackend, widgets::TableState, Terminal};
-use tui::Tui;
-use update::update;
+use std::{
+    fs,
+    io::{self},
+};
+
 #[derive(Parser, Debug)]
 #[command(author, version, about)]
 struct Args {
     file: Option<String>,
 }
+
+use app::App;
+use clap::Parser;
+use event::{Event, EventHandler};
+use ratatui::{backend::CrosstermBackend, widgets::{ListState, TableState}, Terminal};
+use tui::Tui;
+use update::update;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
@@ -70,8 +76,10 @@ fn create_app(path: String) -> Result<App<'static>, io::Error> {
     let lines = read_file(path.as_str())?;
     let mut app = App::new();
     app.file_path = path;
-    app.table_state = TableState::new();
-    app.table_state.select(Some(0));
+    app.event_table_state = TableState::new();
+    app.filter_list_state = ListState::default();
+    app.filter_list_state.select(Some(0));
+    app.event_table_state.select(Some(0));
     app.load_lines(&lines);
     Ok(app)
 }
