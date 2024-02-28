@@ -13,10 +13,7 @@ pub mod tui;
 /// Application updater.
 pub mod update;
 
-// clef parser
-pub mod clef;
-
-pub mod event_log_level;
+pub mod clef_events;
 
 use std::{
     fs,
@@ -80,7 +77,7 @@ fn create_app(path: String) -> Result<App<'static>, io::Error> {
     app.filter_list_state = ListState::default();
     app.filter_list_state.select(Some(0));
     app.event_table_state.select(Some(0));
-    app.load_lines(&lines);
+    app.clef_controller.load_lines(&lines);
     Ok(app)
 }
 

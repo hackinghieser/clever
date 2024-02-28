@@ -1,3 +1,4 @@
+use crate::{app::AppState, clef_events::clef_controller};
 use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style, Stylize},
@@ -16,16 +17,12 @@ struct Detail {
     event_id: String,
 }
 
-use crate::{
-    app::{App, AppState},
-    clef::ClefLine,
-};
 
 pub fn render(app: &mut App, f: &mut Frame) {
     match app.app_state {
         AppState::ITERATING => {
             let widths = [Constraint::Length(30), Constraint::Percentage(100)];
-            let mut clef_rows: Vec<(&ClefLine, Row)> = vec![];
+            let mut clef_rows: Vec<(&ClefEvent, Row)> = vec![];
             let main = Layout::default()
                 .direction(Direction::Vertical)
                 .constraints([Constraint::Percentage(70), Constraint::Percentage(30)])
@@ -58,7 +55,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
             }
 
             let mut selected_row_index = app.event_table_state.selected().unwrap();
-            let selected_row: &ClefLine = match clef_rows.get(selected_row_index) {
+            let selected_row: &ClefEvent = match clef_rows.get(selected_row_index) {
                 None => {
                     app.event_table_state.select(Some(0));
                     selected_row_index = 0;

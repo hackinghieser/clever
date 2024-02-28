@@ -1,12 +1,11 @@
 use std::{fmt::Debug, io::Error};
-
 use chrono::DateTime;
 use ratatui::widgets::{Cell, Row};
 use serde::Deserialize;
 use serde_json::{self, Value};
 
 #[derive(Deserialize, Debug, PartialEq)]
-pub struct ClefLine<'a> {
+pub struct ClefEvent<'a> {
     #[serde(rename = "@t")]
     #[serde(default)]
     pub time: String,
@@ -42,9 +41,9 @@ pub struct ClefLine<'a> {
     pub row: Row<'a>,
 }
 
-impl<'a> ClefLine<'a> {
+impl<'a> ClefEvent<'a> {
     pub fn new(line: &str) -> Result<Self, Error> {
-        let mut clef: ClefLine = serde_json::from_str(line).unwrap();
+        let mut clef: ClefEvent = serde_json::from_str(line).unwrap();
         clef.data = line.to_string();
         clef.template = clef.render()?;
         let time = DateTime::parse_from_rfc3339(clef.time.as_str());
