@@ -32,7 +32,11 @@ struct Args {
 use app::App;
 use clap::Parser;
 use event::{Event, EventHandler};
-use ratatui::{backend::CrosstermBackend, widgets::{ListState, TableState}, Terminal};
+use ratatui::{
+    backend::CrosstermBackend,
+    widgets::{ListState, TableState},
+    Terminal,
+};
 use tui::Tui;
 use update::update;
 
@@ -45,7 +49,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("No file path provided");
             return Ok(());
         }
-    }
+    };
     // Create an application.
     let mut app = create_app(path)?;
     // Initialize the terminal user interface.

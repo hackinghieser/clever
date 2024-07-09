@@ -115,10 +115,16 @@ pub fn render(app: &mut App, f: &mut Frame) {
                 .style(Style::default());
 
             f.render_widget(stats, main[1]);
+            let mut log_level_detail = "";
+            if detail.level.is_empty() {
+                log_level_detail = "No Log Level Defined";
+            } else {
+                log_level_detail = detail.level.as_str();
+            }
 
             let status_details = Paragraph::new(format!(
                 "{} | {}    {}   {}  ",
-                detail.timestap, detail.level, detail.exception, detail.event_id
+                detail.timestap, log_level_detail, detail.exception, detail.event_id
             ))
             .style(Style::default().fg(ratatui::style::Color::Yellow))
             .block(Block::new().padding(block::Padding {

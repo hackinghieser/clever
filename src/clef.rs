@@ -1,7 +1,10 @@
 use std::{fmt::Debug, io::Error};
 
 use chrono::DateTime;
-use ratatui::widgets::{Cell, Row};
+use ratatui::{
+    style::{self, Style, Stylize},
+    widgets::{Cell, Row},
+};
 use serde::Deserialize;
 use serde_json::{self, Value};
 
@@ -59,10 +62,20 @@ impl<'a> ClefLine<'a> {
                     "]".to_string(),
                 ]
                 .join(""),
-            ),
-            Cell::from(clef.template.to_string()),
+            )
+            .style(Self::get_row_color(&clef.level)),
+            Cell::from(clef.template.to_string()).style(Self::get_row_color(&clef.level)),
         ]);
         Ok(clef)
+    }
+
+    pub fn get_row_color(log_level: &str) -> Style {
+        match log_level {
+            "Verbose" => Style::new().fg(style::Color::LightYellow),
+            "Debug" => Style::new().fg(style::Color::Yellow),
+            "Warning" => Style::new().fg(style::Color::LightRed),
+            _ => Style::new().fg(style::Color::LightYellow),
+        }
     }
 
     pub fn render(&mut self) -> Result<String, Error> {
