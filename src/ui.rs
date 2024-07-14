@@ -115,12 +115,11 @@ pub fn render(app: &mut App, f: &mut Frame) {
                 .style(Style::default());
 
             f.render_widget(stats, main[1]);
-            let mut log_level_detail = "";
-            if detail.level.is_empty() {
-                log_level_detail = "No Log Level Defined";
+            let log_level_detail = if detail.level.is_empty() {
+                "No Log Level Defined"
             } else {
-                log_level_detail = detail.level.as_str();
-            }
+                detail.level.as_str()
+            };
 
             let status_details = Paragraph::new(format!(
                 "{} | {}    {}   {}  ",
