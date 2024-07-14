@@ -2,7 +2,7 @@ use std::{fmt::Debug, io::Error};
 
 use chrono::DateTime;
 use ratatui::{
-    style::{self, Style, Stylize},
+    style::{self, Style},
     widgets::{Cell, Row},
 };
 use serde::Deserialize;
