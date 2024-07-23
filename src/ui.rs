@@ -47,13 +47,15 @@ pub fn render(app: &mut App, f: &mut Frame) {
                 .split(detail_area[1]);
 
             for line in &app.lines {
-                let event_level = line.level.to_string();
-                if app
-                    .event_types
-                    .iter()
-                    .any(|level| level.value == event_level && level.selected)
-                {
-                    clef_rows.push((&line, line.row.clone()));
+                if app.event_types.len() > 0 {
+                    let event_level = line.level.to_string();
+                    if app
+                        .event_types
+                        .iter()
+                        .any(|level| level.value == event_level && level.selected)
+                    {
+                        clef_rows.push((&line, line.row.clone()));
+                    }
                 }
             }
 
@@ -96,9 +98,9 @@ pub fn render(app: &mut App, f: &mut Frame) {
                         .title_alignment(ratatui::layout::Alignment::Center)
                         .borders(Borders::ALL)
                         .border_type(ratatui::widgets::BorderType::Rounded)
-                        .title_style(Style::default().fg(ratatui::style::Color::Yellow)),
+                        .title_style(Style::default().fg(ratatui::style::Color::White)),
                 )
-                .style(Style::default().fg(ratatui::style::Color::Yellow))
+                .style(Style::default().fg(ratatui::style::Color::White))
                 .highlight_style(Style::default().reversed());
             f.render_stateful_widget(table, main[0], &mut app.event_table_state);
 
@@ -110,11 +112,12 @@ pub fn render(app: &mut App, f: &mut Frame) {
                 .title_position(ratatui::widgets::block::Position::Bottom)
                 .title_style(Style::default().add_modifier(Modifier::BOLD))
                 .title_alignment(ratatui::layout::Alignment::Left)
-                .title_style(Style::default().fg(ratatui::style::Color::Yellow))
-                .border_style(Style::default().fg(ratatui::style::Color::Yellow))
+                .title_style(Style::default().fg(ratatui::style::Color::White))
+                .border_style(Style::default().fg(ratatui::style::Color::White))
                 .style(Style::default());
 
             f.render_widget(stats, main[1]);
+
             let log_level_detail = if detail.level.is_empty() {
                 "No Log Level Defined"
             } else {
@@ -125,7 +128,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
                 "{} | {}    {}   {}  ",
                 detail.timestap, log_level_detail, detail.exception, detail.event_id
             ))
-            .style(Style::default().fg(ratatui::style::Color::Yellow))
+            .style(Style::default().fg(ratatui::style::Color::White))
             .block(Block::new().padding(block::Padding {
                 left: 1,
                 right: 1,
@@ -136,7 +139,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
             f.render_widget(status_details, detail_header[0]);
 
             let rendered_message = Paragraph::new(detail.message)
-                .style(Style::default().fg(ratatui::style::Color::Yellow))
+                .style(Style::default().fg(ratatui::style::Color::White))
                 .wrap(Wrap { trim: false })
                 .block(Block::new().padding(block::Padding {
                     left: 1,
@@ -149,13 +152,28 @@ pub fn render(app: &mut App, f: &mut Frame) {
         AppState::FILTERING => {
             f.render_widget(Clear, f.size());
             let area = centered_rect(40, 30, f.size());
-            let type_list: Vec<String> = app.event_types.iter().map(|t| t.to_string()).collect();
+            let type_list: Vec<String> = app
+                .event_types
+                .iter()
+                .map(|t| {
+                    let text = if t.value.is_empty() {
+                        if t.selected {
+                            String::from("* Empty Log Level")
+                        } else {
+                            String::from("Empty Log Level")
+                        }
+                    } else {
+                        t.to_string()
+                    };
+                    text.to_string()
+                })
+                .collect();
             let list = List::new(type_list)
                 .block(
                     Block::default()
                         .title("Event Levels")
                         .borders(Borders::ALL)
-                        .style(Style::default().fg(Color::Yellow))
+                        .style(Style::default().fg(Color::White))
                         .border_type(block::BorderType::Rounded)
                         .title(
                             Title::from("Select: Spc | Close: F")
@@ -166,7 +184,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
                 .style(Style::default().fg(Color::White))
                 .highlight_style(Style::default().add_modifier(Modifier::BOLD))
                 .highlight_symbol(">")
-                .style(Style::default().fg(Color::Yellow))
+                .style(Style::default().fg(Color::White))
                 .repeat_highlight_symbol(true)
                 .direction(ListDirection::TopToBottom);
             f.render_stateful_widget(list, area, &mut app.filter_list_state);

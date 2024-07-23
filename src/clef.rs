@@ -71,10 +71,10 @@ impl<'a> ClefLine<'a> {
 
     pub fn get_row_color(log_level: &str) -> Style {
         match log_level {
-            "Verbose" => Style::new().fg(style::Color::LightYellow),
+            "Verbose" => Style::new().fg(style::Color::White),
             "Debug" => Style::new().fg(style::Color::Yellow),
             "Warning" => Style::new().fg(style::Color::LightRed),
-            _ => Style::new().fg(style::Color::LightYellow),
+            _ => Style::new().fg(style::Color::White),
         }
     }
 
