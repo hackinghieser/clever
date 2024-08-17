@@ -1,7 +1,6 @@
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
 use crate::app::{App, AppState};
-
 pub fn update(app: &mut App, key_event: KeyEvent) {
     match app.app_state {
         AppState::ITERATING => {
@@ -34,10 +33,10 @@ pub fn update(app: &mut App, key_event: KeyEvent) {
             KeyCode::Left | KeyCode::Char('k') => app.move_list_down(),
             KeyCode::Up | KeyCode::Char('h') => app.move_list_up(),
             KeyCode::Down | KeyCode::Char('l') => app.move_list_down(),
-            KeyCode::Enter | KeyCode::Char(' ') =>  {
+            KeyCode::Enter | KeyCode::Char(' ') => {
                 let selected = app.filter_list_state.selected().unwrap();
                 app.event_types[selected].selected = !app.event_types[selected].selected;
-            } 
+            }
             KeyCode::Char('f') | KeyCode::Char('F') => match app.app_state {
                 AppState::ITERATING => app.app_state = AppState::FILTERING,
                 AppState::FILTERING => app.app_state = AppState::ITERATING,

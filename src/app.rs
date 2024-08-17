@@ -49,10 +49,10 @@ impl<'a> App<'a> {
     pub fn get_event_types(&mut self, events: &Vec<ClefLine>) {
         for event in events {
             if !self.event_types.iter().any(|t| t.value == event.level) {
-                    self.event_types.push(EventLogLevel {
-                        selected: true,
-                        value: event.level.to_string(),
-                    });
+                self.event_types.push(EventLogLevel {
+                    value: event.level.to_string(),
+                    selected: true,
+                });
             }
         }
         self.event_types
@@ -66,7 +66,7 @@ impl<'a> App<'a> {
 
     pub fn move_row_up(&mut self, range: usize) {
         if let Some(selected) = self.event_table_state.selected() {
-            if selected >= range +1 {
+            if selected >= range + 1 {
                 self.event_table_state.select(Some(selected - range));
             } else {
                 self.event_table_state.select(Some(self.lines.len() - 1));

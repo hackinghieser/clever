@@ -1,6 +1,6 @@
 use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
-    style::{Color, Modifier, Style, Stylize},
+    style::{Color, Modifier, Style, Styled, Stylize},
     widgets::{
         block::{self, Title},
         Block, Borders, Clear, List, ListDirection, Paragraph, Row, Table, Wrap,
@@ -45,9 +45,8 @@ pub fn render(app: &mut App, f: &mut Frame) {
                 .direction(Direction::Vertical)
                 .constraints([Constraint::Percentage(100)])
                 .split(detail_area[1]);
-
             for line in &app.lines {
-                if app.event_types.len() > 0 {
+                if app.event_types.len() >= 0 {
                     let event_level = line.level.to_string();
                     if app
                         .event_types
@@ -59,51 +58,84 @@ pub fn render(app: &mut App, f: &mut Frame) {
                 }
             }
 
-            let mut selected_row_index = app.event_table_state.selected().unwrap();
-            let selected_row: &ClefLine = match clef_rows.get(selected_row_index) {
-                None => {
-                    app.event_table_state.select(Some(0));
-                    selected_row_index = 0;
-                    clef_rows.get(0).unwrap().0
-                }
-                Some(val) => val.0,
-            };
-            let selection_text = format!("{}|{}", selected_row_index, clef_rows.len() - 1);
+            if clef_rows.len() >= 1 {
+                let mut selected_row_index = app.event_table_state.selected().unwrap();
+                let selected_row: &ClefLine = match clef_rows.get(selected_row_index) {
+                    None => {
+                        app.event_table_state.select(Some(0));
+                        selected_row_index = 0;
+                        clef_rows.get(0).unwrap().0
+                    }
+                    Some(val) => val.0,
+                };
+                let selection_text = format!("{}|{}", selected_row_index, clef_rows.len() - 1);
 
-            let detail: Detail = Detail {
-                timestap: selected_row.time.to_string(),
-                message: selected_row.template.to_string(),
-                level: selected_row.level.to_string(),
-                exception: selected_row.exception.to_string(),
-                event_id: selected_row.eventid.to_string(),
-            };
+                let detail: Detail = Detail {
+                    timestap: selected_row.time.to_string(),
+                    message: selected_row.template.to_string(),
+                    level: selected_row.level.to_string(),
+                    exception: selected_row.exception.to_string(),
+                    event_id: selected_row.eventid.to_string(),
+                };
+                let table = Table::new(clef_rows.iter().map(|v| v.1.clone()), widths)
+                    .column_spacing(0)
+                    .header(Row::new(vec!["Time|Level", "Message"]).style(Style::new().bold()))
+                    .block(
+                        Block::default()
+                            .title("Clever")
+                            .title(
+                                block::Title::from(app.file_path.as_str())
+                                    .position(block::Position::Top)
+                                    .alignment(ratatui::layout::Alignment::Left),
+                            )
+                            .title(
+                                block::Title::from(selection_text)
+                                    .position(block::Position::Bottom)
+                                    .alignment(ratatui::layout::Alignment::Center),
+                            )
+                            .title_position(ratatui::widgets::block::Position::Top)
+                            .title_alignment(ratatui::layout::Alignment::Center)
+                            .borders(Borders::ALL)
+                            .border_type(ratatui::widgets::BorderType::Rounded)
+                            .title_style(Style::default().fg(ratatui::style::Color::White)),
+                    )
+                    .style(Style::default().fg(ratatui::style::Color::White))
+                    .highlight_style(Style::default().reversed());
+                f.render_stateful_widget(table, main[0], &mut app.event_table_state);
 
-            let table = Table::new(clef_rows.iter().map(|v| v.1.clone()), widths)
-                .column_spacing(0)
-                .header(Row::new(vec!["Time|Level", "Message"]).style(Style::new().bold()))
-                .block(
-                    Block::default()
-                        .title("Clever")
-                        .title(
-                            block::Title::from(app.file_path.as_str())
-                                .position(block::Position::Top)
-                                .alignment(ratatui::layout::Alignment::Left),
-                        )
-                        .title(
-                            block::Title::from(selection_text)
-                                .position(block::Position::Bottom)
-                                .alignment(ratatui::layout::Alignment::Center),
-                        )
-                        .title_position(ratatui::widgets::block::Position::Top)
-                        .title_alignment(ratatui::layout::Alignment::Center)
-                        .borders(Borders::ALL)
-                        .border_type(ratatui::widgets::BorderType::Rounded)
-                        .title_style(Style::default().fg(ratatui::style::Color::White)),
-                )
+                let log_level_detail = if detail.level.is_empty() {
+                    "No Log Level Defined"
+                } else {
+                    detail.level.as_str()
+                };
+
+                let status_details = Paragraph::new(format!(
+                    "{} | {}    {}   {}  ",
+                    detail.timestap, log_level_detail, detail.exception, detail.event_id
+                ))
                 .style(Style::default().fg(ratatui::style::Color::White))
-                .highlight_style(Style::default().reversed());
-            f.render_stateful_widget(table, main[0], &mut app.event_table_state);
+                .block(Block::new().padding(block::Padding {
+                    left: 1,
+                    right: 1,
+                    top: 1,
+                    bottom: 0,
+                }));
 
+                f.render_widget(status_details, detail_header[0]);
+                let rendered_message = Paragraph::new(detail.message)
+                    .style(Style::default().fg(ratatui::style::Color::White))
+                    .wrap(Wrap { trim: false })
+                    .block(Block::new().padding(block::Padding {
+                        left: 1,
+                        right: 1,
+                        top: 0,
+                        bottom: 1,
+                    }));
+                f.render_widget(rendered_message, detail_footer[0]);
+                let empty_log_paragraph = Paragraph::new(String::from("Nothing to show..."))
+                    .style(Style::new().fg(Color::Gray));
+                f.render_widget(empty_log_paragraph, main[1]);
+            }
             let stats = Block::default()
                 .borders(Borders::ALL)
                 .title(block::Title::from("Detail").position(block::Position::Top))
@@ -117,37 +149,6 @@ pub fn render(app: &mut App, f: &mut Frame) {
                 .style(Style::default());
 
             f.render_widget(stats, main[1]);
-
-            let log_level_detail = if detail.level.is_empty() {
-                "No Log Level Defined"
-            } else {
-                detail.level.as_str()
-            };
-
-            let status_details = Paragraph::new(format!(
-                "{} | {}    {}   {}  ",
-                detail.timestap, log_level_detail, detail.exception, detail.event_id
-            ))
-            .style(Style::default().fg(ratatui::style::Color::White))
-            .block(Block::new().padding(block::Padding {
-                left: 1,
-                right: 1,
-                top: 1,
-                bottom: 0,
-            }));
-
-            f.render_widget(status_details, detail_header[0]);
-
-            let rendered_message = Paragraph::new(detail.message)
-                .style(Style::default().fg(ratatui::style::Color::White))
-                .wrap(Wrap { trim: false })
-                .block(Block::new().padding(block::Padding {
-                    left: 1,
-                    right: 1,
-                    top: 0,
-                    bottom: 1,
-                }));
-            f.render_widget(rendered_message, detail_footer[0]);
         }
         AppState::FILTERING => {
             f.render_widget(Clear, f.size());

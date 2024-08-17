@@ -22,7 +22,7 @@ use std::{
     fs,
     io::{self},
 };
-
+use update::update;
 #[derive(Parser, Debug)]
 #[command(author, version, about)]
 struct Args {
@@ -38,7 +38,6 @@ use ratatui::{
     Terminal,
 };
 use tui::Tui;
-use update::update;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
