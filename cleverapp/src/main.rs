@@ -1,4 +1,3 @@
-/// Application.
 pub mod app;
 
 /// Terminal events handler.
@@ -12,9 +11,6 @@ pub mod tui;
 
 /// Application updater.
 pub mod update;
-
-// clef parser
-pub mod clef;
 
 pub mod event_log_level;
 

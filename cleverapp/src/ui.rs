@@ -1,3 +1,4 @@
+use cleverlib::clef::ClefLine;
 use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style, Styled, Stylize},
@@ -16,10 +17,9 @@ struct Detail {
     event_id: String,
 }
 
-use crate::{
-    app::{App, AppState},
-    clef::ClefLine,
-};
+use crate::app::{App, AppState};
+
+fn create_row(line: String) {}
 
 pub fn render(app: &mut App, f: &mut Frame) {
     match app.app_state {
@@ -53,6 +53,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
                         .iter()
                         .any(|level| level.value == event_level && level.selected)
                     {
+                        // TODO: Here I need to parse the line into a Ratatui Row
                         clef_rows.push((&line, line.row.clone()));
                     }
                 }

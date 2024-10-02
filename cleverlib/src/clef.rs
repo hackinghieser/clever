@@ -1,15 +1,11 @@
 use std::{fmt::Debug, io::Error};
 
 use chrono::DateTime;
-use ratatui::{
-    style::{self, Style},
-    widgets::{Cell, Row},
-};
 use serde::Deserialize;
 use serde_json::{self, Value};
 
 #[derive(Deserialize, Debug, PartialEq)]
-pub struct ClefLine<'a> {
+pub struct ClefLine {
     #[serde(rename = "@t")]
     #[serde(default)]
     pub time: String,
@@ -40,42 +36,16 @@ pub struct ClefLine<'a> {
 
     #[serde(skip)]
     pub data: String,
-
-    #[serde(skip)]
-    pub row: Row<'a>,
 }
 
-impl<'a> ClefLine<'a> {
+impl ClefLine {
     pub fn new(line: &str) -> Result<Self, Error> {
         let mut clef: ClefLine = serde_json::from_str(line).unwrap();
         clef.data = line.to_string();
         clef.template = clef.render()?;
         let time = DateTime::parse_from_rfc3339(clef.time.as_str());
         clef.time = time.unwrap().format("%d.%m.%y %H:%M:%S").to_string();
-        clef.row = Row::new(vec![
-            Cell::from(
-                [
-                    "[".to_string(),
-                    clef.time.to_string(),
-                    "|".to_string(),
-                    clef.level.to_string(),
-                    "]".to_string(),
-                ]
-                .join(""),
-            )
-            .style(Self::get_row_color(&clef.level)),
-            Cell::from(clef.template.to_string()).style(Self::get_row_color(&clef.level)),
-        ]);
         Ok(clef)
-    }
-
-    pub fn get_row_color(log_level: &str) -> Style {
-        match log_level {
-            "Verbose" => Style::new().fg(style::Color::White),
-            "Debug" => Style::new().fg(style::Color::Yellow),
-            "Warning" => Style::new().fg(style::Color::LightRed),
-            _ => Style::new().fg(style::Color::White),
-        }
     }
 
     pub fn render(&mut self) -> Result<String, Error> {
