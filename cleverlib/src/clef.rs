@@ -4,8 +4,9 @@ use chrono::DateTime;
 use serde::Deserialize;
 use serde_json::{self, Value};
 
+use crate::template;
 #[derive(Deserialize, Debug, PartialEq)]
-pub struct ClefLine {
+pub struct LogEvent {
     #[serde(rename = "@t")]
     #[serde(default)]
     pub time: String,
@@ -38,9 +39,9 @@ pub struct ClefLine {
     pub data: String,
 }
 
-impl ClefLine {
+impl LogEvent {
     pub fn new(line: &str) -> Result<Self, Error> {
-        let mut clef: ClefLine = serde_json::from_str(line).unwrap();
+        let mut clef: LogEvent = serde_json::from_str(line).unwrap();
         clef.data = line.to_string();
         clef.template = clef.render()?;
         let time = DateTime::parse_from_rfc3339(clef.time.as_str());
