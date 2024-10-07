@@ -36,14 +36,22 @@ impl Token {
     fn get_value(&self) -> String {
         // Regex Match different kinds of holes
         // {} {{}}
-        let split: Vec<&str> = self.raw_token.split(['{', '}']).collect();
-        if split.len() > 1 {
-            println!("RegexSplit: {:?}", split);
-            let json = &self.arguments.as_ref().unwrap()[split.get(1).unwrap()];
-            let s = format!("{}{}{}", split[0], json.as_str().unwrap(), split[2]);
-            s
-        } else {
-            self.raw_token.to_string()
+        let mut value = self.raw_token.to_string();
+        println!("{:?}", self.arguments);
+        if self.arguments.is_some() {
+            let split: Vec<&str> = self.raw_token.split(['{', '}']).collect();
+
+            if split.len() > 1 {
+                println!("RegexSplit: {:?}", split);
+                let json = &self.arguments.as_ref().unwrap()[split.get(1).unwrap()];
+                if json.is_string() {
+                    println!("{}", json.as_str().unwrap());
+                    value = format!("{}{}{}", split[0], json.as_str().unwrap(), split[2]);
+                } else if json.is_number() {
+                    value = format!("{}{}{}", split[0], json.as_number().unwrap(), split[2]);
+                }
+            }
         }
+        value
     }
 }
