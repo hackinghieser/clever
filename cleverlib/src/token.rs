@@ -1,4 +1,3 @@
-use regex::Regex;
 use serde_json::Value;
 
 #[derive(Debug, PartialEq)]
@@ -10,22 +9,15 @@ pub struct Token {
 }
 
 impl Token {
-    pub fn new(token: String, args: String) -> Option<Self> {
+    pub fn new(token: String, event: &Value) -> Option<Self> {
         let mut token = Token {
             raw_token: token,
-            arguments: Some(serde_json::from_str(args.as_str()).unwrap()),
+            arguments: Some(serde_json::from_value(event.clone()).unwrap()),
             value: None,
             token: None,
         };
-        token.value = Some(Token::get_value(&token).to_string());
+        (token.value, token.token) = token.parse();
         Some(token)
-    }
-
-    fn clean(&self) -> String {
-        let cleaned = self.raw_token.replace("{", "");
-        let cleaned = cleaned.replace("}", "");
-        let cleaned = cleaned.trim();
-        cleaned.to_string()
     }
 
     pub fn render(&self) -> String {
@@ -33,25 +25,26 @@ impl Token {
         rendered_value.to_string()
     }
 
-    fn get_value(&self) -> String {
+    fn parse(&self) -> (Option<String>, Option<String>) {
         // Regex Match different kinds of holes
         // {} {{}}
         let mut value = self.raw_token.to_string();
         println!("{:?}", self.arguments);
-        if self.arguments.is_some() {
-            let split: Vec<&str> = self.raw_token.split(['{', '}']).collect();
-
-            if split.len() > 1 {
-                println!("RegexSplit: {:?}", split);
-                let json = &self.arguments.as_ref().unwrap()[split.get(1).unwrap()];
-                if json.is_string() {
-                    println!("{}", json.as_str().unwrap());
-                    value = format!("{}{}{}", split[0], json.as_str().unwrap(), split[2]);
-                } else if json.is_number() {
-                    value = format!("{}{}{}", split[0], json.as_number().unwrap(), split[2]);
-                }
-            }
+        let split_token: Vec<&str> = self.raw_token.split(['{', '}']).collect();
+        if split_token.len() > 1 {
+            println!("RegexSplit: {:?}", split_token);
+            let token = split_token.get(1).unwrap().to_string();
+            let json = &self.arguments.clone().unwrap()[&token];
+            value = match json {
+                Value::String(value) => value.to_string(),
+                Value::Bool(value) => value.to_string(),
+                Value::Number(value) => value.to_string(),
+                _ => "not supported".to_string(),
+            };
+            value = format!("{}{}{}", split_token[0], value, split_token[2]);
+            (Some(value), Some(token))
+        } else {
+            (Some(value), None)
         }
-        value
     }
 }

@@ -4,7 +4,7 @@ use cleverlib::event_collection::EventCollection;
 fn main() {
     println!("Hello, world!");
     {
-        let file = fs::read("./example.clef").expect("No file found !");
+        let file = fs::read("./src/example.clef").expect("No file found !");
         let lines = file.lines().map(|s| s.unwrap()).collect();
         println!("Create collection");
 
@@ -21,11 +21,10 @@ fn main() {
                 .collect::<Vec<String>>();
 
             println!(
-                "#{} @t[{}] @l[{}] @t: {} @mt: {}",
+                "#{} @t[{}] @l[{}] @mt: {}",
                 index,
                 &&event.time.unwrap(),
-                &event.level.unwrap_or_default(),
-                &event.template.unwrap(),
+                event.level.unwrap_or_default(),
                 rendered_event.join(" ")
             );
             index = index.checked_add(1).unwrap();

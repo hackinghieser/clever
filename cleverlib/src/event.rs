@@ -1,7 +1,7 @@
-use regex::Regex;
 use serde::Deserialize;
+use serde_json::Value;
 
-use crate::{template, token::Token};
+use crate::token::Token;
 
 #[derive(Deserialize, Debug, PartialEq)]
 pub struct Event {
@@ -45,13 +45,14 @@ pub struct Event {
 
 impl Event {
     pub fn create(raw_event: String) -> Option<Self> {
-        let mut event: Event = serde_json::from_str(raw_event.as_str()).unwrap();
+        let raw_json: Value = serde_json::from_str(raw_event.as_str()).unwrap();
+        let mut event: Event = serde_json::from_value(raw_json.clone()).unwrap();
         event.raw_string = raw_event;
-        event.tokenize();
+        event.tokenize(&raw_json);
         Some(event)
     }
 
-    fn tokenize(&mut self) {
+    fn tokenize(&mut self, raw_json: &Value) {
         let mut tokens: Vec<Token> = Vec::new();
         let template = &self.template.as_ref().unwrap();
         let splitted: Vec<&str> = template.split_whitespace().collect();
@@ -59,7 +60,7 @@ impl Event {
         println!("Event entities: {:?}", splitted);
         splitted.iter().for_each(|x| {
             println!("Token: {}", x);
-            let t = Token::new(x.to_string(), self.raw_string.to_string());
+            let t = Token::new(x.to_string(), raw_json);
             tokens.push(t.unwrap())
         });
         self.tokens = tokens;
