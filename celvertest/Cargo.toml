@@ -5,3 +5,4 @@ edition = "2021"
 
 [dependencies]
 cleverlib = { path = "../cleverlib" }
+rayon-progress = "1.0.0"

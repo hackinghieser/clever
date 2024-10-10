@@ -5,6 +5,10 @@ edition = "2021"
 
 [dependencies]
 serde = { version = "1.0.196", features = ["derive"] }
-serde_json = "1.0.113"
+serde_json = { version = "1.0.113", features = ["preserve_order"] }
 chrono = "0.4.33"
+indexmap = { version = "2.6.0", features = ["serde"] }
 regex = "1.11.0"
+rayon = "1.10.0"
+rayon-progress = "1.0.0"
+indicatif = { version = "0.17.8", features = ["rayon"] }

@@ -1,3 +1,5 @@
+use indexmap::IndexMap;
+use regex::Regex;
 use serde::Deserialize;
 use serde_json::Value;
 
@@ -15,7 +17,7 @@ pub struct Event {
 
     #[serde(rename = "@mt")]
     #[serde(default)]
-    pub template: Option<String>,
+    pub template: String,
 
     #[serde(rename = "@l")]
     #[serde(default)]
@@ -39,30 +41,47 @@ pub struct Event {
     #[serde(skip)]
     pub tokens: Vec<Token>,
 
+    #[serde(flatten)]
+    properties: IndexMap<String, Value>,
+
     #[serde(skip)]
     raw_string: String,
 }
 
 impl Event {
-    pub fn create(raw_event: String) -> Option<Self> {
+    pub fn create(raw_event: String, regex: &Regex) -> Option<Self> {
         let raw_json: Value = serde_json::from_str(raw_event.as_str()).unwrap();
         let mut event: Event = serde_json::from_value(raw_json.clone()).unwrap();
         event.raw_string = raw_event;
-        event.tokenize(&raw_json);
+        event.message = Some(Event::generate_message_template(
+            &event.template,
+            &event.properties,
+            regex,
+        ));
         Some(event)
     }
 
-    fn tokenize(&mut self, raw_json: &Value) {
-        let mut tokens: Vec<Token> = Vec::new();
-        let template = &self.template.as_ref().unwrap();
-        let splitted: Vec<&str> = template.split_whitespace().collect();
-        println!("Event entities: {}", splitted.len());
-        println!("Event entities: {:?}", splitted);
-        splitted.iter().for_each(|x| {
-            println!("Token: {}", x);
-            let t = Token::new(x.to_string(), raw_json);
-            tokens.push(t.unwrap())
-        });
-        self.tokens = tokens;
+    fn generate_message_template(
+        template: &str,
+        properties: &IndexMap<String, Value>,
+        regex: &Regex,
+    ) -> String {
+        regex
+            .replace_all(template, |caps: &regex::Captures| {
+                let key = &caps[1];
+                if let Ok(index) = key.parse::<usize>() {
+                    properties
+                        .get_index(index)
+                        .map_or(format!("{{{}}}", index), |v| {
+                            println!("Index Value: {}", v.1);
+                            v.1.to_string()
+                        })
+                } else {
+                    properties
+                        .get(key)
+                        .map_or(format!("{{{}}}", key), |v| v.to_string())
+                }
+            })
+            .to_string()
     }
 }
