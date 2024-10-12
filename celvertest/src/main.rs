@@ -6,9 +6,12 @@ use std::{
     time::Instant,
 };
 
-use cleverlib::event_collection::EventCollection;
+use cleverlib::{
+    event,
+    event_collection::{self, EventCollection},
+};
 fn main() {
-    if let Ok(lines) = read_lines("src/example.clef") {
+    if let Ok(lines) = read_lines("src/example1.clef") {
         // Consumes the iterator, returns an (Optional) String
         let tick = Arc::new(Mutex::new(0));
         let mut now = Instant::now();
@@ -22,16 +25,13 @@ fn main() {
         println!("Tokens: {}", collection.events[0].tokens.len());
         println!("Elapsed serie: {:?}", now.elapsed());
 
-        now = Instant::now();
+        let result = collection.filter_log_level("Debug");
+        println!("Result Filter Debug: Count {} ", result.len());
+        let result = collection.filter_log_level("Warning");
+        println!("Result Filter Warning: Count: {} ", result.len(),);
 
-        let collection = EventCollection::create(c.clone()).unwrap();
-        println!("Create collection");
-        println!("Events: {}", collection.events.len());
-        println!("Tokens: {}", collection.events[0].tokens.len());
-        println!("Elapsed serie: {:?}", now.elapsed());
+        println!("done")
     }
-
-    println!("done")
 }
 
 // The output is wrapped in a Result to allow matching on errors.

@@ -1,5 +1,3 @@
-use std::sync::{Arc, Mutex};
-
 use crate::event::Event;
 use indicatif::{ParallelProgressIterator, ProgressIterator};
 use rayon::prelude::*;
@@ -53,6 +51,26 @@ impl EventCollection {
             })
             .collect();
         event_collection
+    }
+
+    pub fn par_filter_log_level(&self, log_level: &str) -> Vec<&Event> {
+        self.events
+            .par_iter()
+            .filter(|event| event.level.clone().unwrap().eq_ignore_ascii_case(log_level))
+            .collect()
+    }
+
+    pub fn filter_log_level(&self, log_level: &str) -> Vec<&Event> {
+        self.events
+            .par_iter()
+            .filter(|event| {
+                event
+                    .level
+                    .clone()
+                    .unwrap_or_default()
+                    .eq_ignore_ascii_case(log_level)
+            })
+            .collect()
     }
 
     fn read_events_serie(&self, events: Vec<String>) -> Vec<Event> {
