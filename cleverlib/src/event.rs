@@ -61,6 +61,7 @@ impl Event {
         Some(event)
     }
 
+    //TODO: Parse format and alignment as well using regex matches
     fn generate_message_template(
         template: &str,
         properties: &IndexMap<String, Value>,
