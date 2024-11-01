@@ -3,8 +3,6 @@ use regex::Regex;
 use serde::Deserialize;
 use serde_json::Value;
 
-use crate::token::Token;
-
 #[derive(Deserialize, Debug, PartialEq)]
 pub struct Event {
     #[serde(rename = "@t")]
@@ -37,9 +35,6 @@ pub struct Event {
 
     #[serde(skip)]
     pub data: String,
-
-    #[serde(skip)]
-    pub tokens: Vec<Token>,
 
     #[serde(flatten)]
     properties: IndexMap<String, Value>,
