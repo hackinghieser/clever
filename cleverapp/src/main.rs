@@ -14,7 +14,6 @@ pub mod update;
 
 pub mod event_log_level;
 
-use cleverlib::{event_collection::EventCollection, token::Token};
 use std::{
     fs,
     io::{self},
@@ -35,17 +34,8 @@ use ratatui::{
     Terminal,
 };
 use tui::Tui;
-fn main() {
-    let event =  "{\"@t\":\"2018-11-12T08:34:45.8780049Z\",\"@mt\":\"{StartMessage} [Timing {TimingId}]\",\"@l\":\"Debug\",\"StartMessage\":\"Acquiring MainDom.\",\"TimingId\":\"fa0a8ff\",\"SourceContext\":\"Umbraco.Core.Runtime.CoreRuntime\",\"ProcessId\":27004,\"ProcessName\":\"iisexpress\",\"ThreadId\":1,\"AppDomainId\":2,\"AppDomainAppId\":\"LMW3SVC2ROOT\",\"MachineName\":\"DELLBOOK\",\"Log4NetLevel\":\"DEBUG\",\"HttpRequestNumber\":1,\"HttpRequestId\":\"557f45ba-0888-4216-8723-e226d795a2f7\"}\n";
-    let mut lines = Vec::new();
-    lines.push(event.to_string());
 
-    let collection = EventCollection::create(lines).unwrap();
-    collection.events[0].tokens.iter().for_each(|x| {
-        println!("{:?}", x);
-    })
-}
-fn mainTest() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
     let path: String;
     match args.file {
@@ -90,6 +80,7 @@ fn create_app(path: String) -> Result<App<'static>, io::Error> {
     app.filter_list_state.select(Some(0));
     app.event_table_state.select(Some(0));
     app.load_lines(&lines);
+    app.get_event_types();
     Ok(app)
 }
 

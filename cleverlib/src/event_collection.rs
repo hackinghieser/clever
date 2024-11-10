@@ -1,10 +1,21 @@
+use std::fmt::Debug;
+
 use crate::event::Event;
 use indicatif::{ParallelProgressIterator, ProgressIterator};
 use rayon::prelude::*;
 use regex::Regex;
 
+#[derive(Default)]
 pub struct EventCollection {
     pub events: Vec<Event>,
+}
+
+impl Debug for EventCollection {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("EventCollection")
+            .field("events", &self.events)
+            .finish()
+    }
 }
 
 impl EventCollection {
@@ -16,7 +27,7 @@ impl EventCollection {
         Some(event_collection)
     }
 
-    pub fn create_par(events: Vec<String>) -> Option<Self> {
+    pub fn create_par(events: &Vec<String>) -> Option<Self> {
         let mut event_collection = EventCollection { events: vec![] };
         let event_list = EventCollection::read_events_par(&event_collection, events);
         event_collection.events = event_list;
@@ -84,7 +95,7 @@ impl EventCollection {
         event_collection
     }
 
-    fn read_events_par(&self, events: Vec<String>) -> Vec<Event> {
+    fn read_events_par(&self, events: &Vec<String>) -> Vec<Event> {
         println!("Event Count: {0}", events.len());
         let re = Regex::new(r"\{(\w+|\d+)\}").unwrap();
         let event_collection = events

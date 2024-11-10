@@ -1,5 +1,8 @@
 use crate::event_log_level::EventLogLevel;
-use cleverlib::clef::ClefLine;
+use cleverlib::{
+    event::Event,
+    event_collection::{self, EventCollection},
+};
 use ratatui::widgets::{ListState, Row, TableState};
 
 #[derive(Debug)]
@@ -17,13 +20,13 @@ impl Default for AppState {
 pub struct App<'a> {
     pub should_quit: bool,
     pub counter: u8,
-    pub lines: Vec<ClefLine>,
     pub rows: Vec<Row<'a>>,
     pub event_table_state: TableState,
     pub filter_list_state: ListState,
     pub file_path: String,
     pub event_types: Vec<EventLogLevel>,
     pub app_state: AppState,
+    pub event_collection: EventCollection,
 }
 
 impl<'a> App<'a> {
@@ -34,24 +37,20 @@ impl<'a> App<'a> {
     pub fn tick(&self) {}
 
     pub fn load_lines(&mut self, lines: &Vec<String>) {
-        self.lines = self.create_cells_from_line(lines);
+        self.event_collection = EventCollection::create_par(lines).unwrap();
+        println!("Collection created");
     }
 
-    fn create_cells_from_line(&mut self, lines: &Vec<String>) -> Vec<ClefLine> {
-        let mut clef_lines: Vec<ClefLine> = vec![];
-
-        for line in lines {
-            clef_lines.push(ClefLine::new(line).unwrap())
-        }
-        self.get_event_types(&clef_lines);
-        clef_lines
-    }
-
-    pub fn get_event_types(&mut self, events: &Vec<ClefLine>) {
-        for event in events {
-            if !self.event_types.iter().any(|t| t.value == event.level) {
+    pub fn get_event_types(&mut self) {
+        for event in self.event_collection.events.iter() {
+            println!("tyupe {}", event.level.clone().unwrap_or_default());
+            if !self
+                .event_types
+                .iter()
+                .any(|t| t.value == event.level.clone().unwrap_or_default())
+            {
                 self.event_types.push(EventLogLevel {
-                    value: event.level.to_string(),
+                    value: event.level.clone().unwrap_or_default().to_string(),
                     selected: true,
                 });
             }
@@ -70,14 +69,15 @@ impl<'a> App<'a> {
             if selected >= range + 1 {
                 self.event_table_state.select(Some(selected - range));
             } else {
-                self.event_table_state.select(Some(self.lines.len() - 1));
+                self.event_table_state
+                    .select(Some(self.event_collection.events.len() - 1));
             }
         }
     }
 
     pub fn move_row_down(&mut self, range: usize) {
         if let Some(selected) = self.event_table_state.selected() {
-            if selected < self.lines.len() - range {
+            if selected < self.event_collection.events.len() - range {
                 self.event_table_state.select(Some(selected + range));
             } else {
                 self.event_table_state.select(Some(0));
