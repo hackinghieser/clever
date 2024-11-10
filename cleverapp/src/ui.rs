@@ -58,7 +58,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
                         // TODO: Here I need to parse the line into a Ratatui Row
                         let row = Row::new(vec![
                             line.time.clone().unwrap_or_default().to_string(),
-                            line.template.clone().to_string(),
+                            line.message.clone().unwrap_or_default().to_string(),
                         ]);
                         clef_rows.push((&line, row));
                     }

@@ -38,26 +38,23 @@ impl<'a> App<'a> {
 
     pub fn load_lines(&mut self, lines: &Vec<String>) {
         self.event_collection = EventCollection::create_par(lines).unwrap();
-        println!("Collection created");
     }
 
     pub fn get_event_types(&mut self) {
         for event in self.event_collection.events.iter() {
-            println!("tyupe {}", event.level.clone().unwrap_or_default());
-            if !self
-                .event_types
-                .iter()
-                .any(|t| t.value == event.level.clone().unwrap_or_default())
-            {
+            if !self.event_types.iter().any(|t| {
+                t.value
+                    == event
+                        .level
+                        .clone()
+                        .unwrap_or_else(|| String::from("Unkown"))
+            }) {
                 self.event_types.push(EventLogLevel {
                     value: event.level.clone().unwrap_or_default().to_string(),
                     selected: true,
                 });
             }
         }
-        self.event_types
-            .iter()
-            .for_each(|v| println!("{}", v.value));
     }
 
     pub fn quit(&mut self) {
