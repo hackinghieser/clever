@@ -1,5 +1,5 @@
 [![Clever Release Build](https://github.com/AlexanderHieser/clever/actions/workflows/release_build.yml/badge.svg)](https://github.com/AlexanderHieser/clever/actions/workflows/release_build.yml)
-
+[![Clever Debug Build](https://github.com/hackinghieser/clever/actions/workflows/debug_build.yml/badge.svg?branch=main)](https://github.com/hackinghieser/clever/actions/workflows/debug_build.yml)
 # clever
 
 Clever is a simple cli application to view \*.clef logs. Written in Rust &amp; powered by Ratatui
