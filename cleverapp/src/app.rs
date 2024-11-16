@@ -1,21 +1,14 @@
 use crate::event_log_level::EventLogLevel;
-use cleverlib::{
-    event::Event,
-    event_collection::{self, EventCollection},
-};
+use cleverlib::event_collection::EventCollection;
 use ratatui::widgets::{ListState, Row, TableState};
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub enum AppState {
     FILTERING,
+    #[default]
     ITERATING,
 }
 
-impl Default for AppState {
-    fn default() -> Self {
-        AppState::ITERATING
-    }
-}
 #[derive(Debug, Default)]
 pub struct App<'a> {
     pub should_quit: bool,
@@ -41,20 +34,15 @@ impl<'a> App<'a> {
     }
 
     pub fn get_event_types(&mut self) {
-        for event in self.event_collection.events.iter() {
-            if !self.event_types.iter().any(|t| {
-                t.value
-                    == event
-                        .level
-                        .clone()
-                        .unwrap_or_else(|| String::from("Unkown"))
-            }) {
-                self.event_types.push(EventLogLevel {
-                    value: event.level.clone().unwrap_or_default().to_string(),
-                    selected: true,
-                });
-            }
-        }
+        self.event_types = self
+            .event_collection
+            .log_levels
+            .iter()
+            .map(|f| EventLogLevel {
+                selected: true,
+                value: f.to_string(),
+            })
+            .collect()
     }
 
     pub fn quit(&mut self) {

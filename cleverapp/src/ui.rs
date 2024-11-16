@@ -1,5 +1,6 @@
-use std::vec;
+use std::{str::FromStr, vec};
 
+use chrono::DateTime;
 use cleverlib::event::Event;
 use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
@@ -20,8 +21,6 @@ struct Detail {
 }
 
 use crate::app::{App, AppState};
-
-fn create_row(line: String) {}
 
 pub fn render(app: &mut App, f: &mut Frame) {
     match app.app_state {
@@ -56,8 +55,15 @@ pub fn render(app: &mut App, f: &mut Frame) {
                         .any(|level| level.value == event_level && level.selected)
                     {
                         // TODO: Here I need to parse the line into a Ratatui Row
+                        let date_time = DateTime::parse_from_rfc3339(
+                            line.time.clone().unwrap_or_default().as_ref(),
+                        );
                         let row = Row::new(vec![
-                            line.time.clone().unwrap_or_default().to_string(),
+                            format!(
+                                "[{}] {}",
+                                date_time.unwrap().format("%Y/%m/%d %H:%M:%S"),
+                                event_level
+                            ),
                             line.message.clone().unwrap_or_default().to_string(),
                         ]);
                         clef_rows.push((&line, row));
@@ -79,7 +85,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
 
                 let detail: Detail = Detail {
                     timestap: selected_row.time.clone().unwrap().to_string(),
-                    message: selected_row.template.to_string(),
+                    message: selected_row.message.clone().unwrap().to_string(),
                     level: selected_row.level.clone().unwrap_or_default().to_string(),
                     exception: selected_row
                         .exception
@@ -121,8 +127,12 @@ pub fn render(app: &mut App, f: &mut Frame) {
                 };
 
                 let status_details = Paragraph::new(format!(
-                    "{} | {}    {}   {}  ",
-                    detail.timestap, log_level_detail, detail.exception, detail.event_id
+                    "{} | {}    {}   {} {}  ",
+                    detail.timestap,
+                    log_level_detail,
+                    detail.message,
+                    detail.exception,
+                    detail.event_id
                 ))
                 .style(Style::default().fg(ratatui::style::Color::White))
                 .block(Block::new().padding(block::Padding {
