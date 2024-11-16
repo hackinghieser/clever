@@ -1,3 +1,7 @@
+use std::{str::FromStr, vec};
+
+use chrono::DateTime;
+use cleverlib::event::Event;
 use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style, Styled, Stylize},
@@ -16,16 +20,13 @@ struct Detail {
     event_id: String,
 }
 
-use crate::{
-    app::{App, AppState},
-    clef::ClefLine,
-};
+use crate::app::{App, AppState};
 
 pub fn render(app: &mut App, f: &mut Frame) {
     match app.app_state {
         AppState::ITERATING => {
             let widths = [Constraint::Length(30), Constraint::Percentage(100)];
-            let mut clef_rows: Vec<(&ClefLine, Row)> = vec![];
+            let mut clef_rows: Vec<(&Event, Row)> = vec![];
             let main = Layout::default()
                 .direction(Direction::Vertical)
                 .constraints([Constraint::Percentage(70), Constraint::Percentage(30)])
@@ -45,22 +46,34 @@ pub fn render(app: &mut App, f: &mut Frame) {
                 .direction(Direction::Vertical)
                 .constraints([Constraint::Percentage(100)])
                 .split(detail_area[1]);
-            for line in &app.lines {
-                if app.event_types.len() >= 0 {
-                    let event_level = line.level.to_string();
+            for line in app.event_collection.events.iter() {
+                if app.event_types.len() >= 1 {
+                    let event_level = line.level.clone().unwrap_or_default().to_string();
                     if app
                         .event_types
                         .iter()
                         .any(|level| level.value == event_level && level.selected)
                     {
-                        clef_rows.push((&line, line.row.clone()));
+                        // TODO: Here I need to parse the line into a Ratatui Row
+                        let date_time = DateTime::parse_from_rfc3339(
+                            line.time.clone().unwrap_or_default().as_ref(),
+                        );
+                        let row = Row::new(vec![
+                            format!(
+                                "[{}] {}",
+                                date_time.unwrap().format("%Y/%m/%d %H:%M:%S"),
+                                event_level
+                            ),
+                            line.message.clone().unwrap_or_default().to_string(),
+                        ]);
+                        clef_rows.push((&line, row));
                     }
                 }
             }
 
             if clef_rows.len() >= 1 {
                 let mut selected_row_index = app.event_table_state.selected().unwrap();
-                let selected_row: &ClefLine = match clef_rows.get(selected_row_index) {
+                let selected_row: &Event = match clef_rows.get(selected_row_index) {
                     None => {
                         app.event_table_state.select(Some(0));
                         selected_row_index = 0;
@@ -71,11 +84,15 @@ pub fn render(app: &mut App, f: &mut Frame) {
                 let selection_text = format!("{}|{}", selected_row_index, clef_rows.len() - 1);
 
                 let detail: Detail = Detail {
-                    timestap: selected_row.time.to_string(),
-                    message: selected_row.template.to_string(),
-                    level: selected_row.level.to_string(),
-                    exception: selected_row.exception.to_string(),
-                    event_id: selected_row.eventid.to_string(),
+                    timestap: selected_row.time.clone().unwrap().to_string(),
+                    message: selected_row.message.clone().unwrap().to_string(),
+                    level: selected_row.level.clone().unwrap_or_default().to_string(),
+                    exception: selected_row
+                        .exception
+                        .clone()
+                        .unwrap_or_default()
+                        .to_string(),
+                    event_id: selected_row.eventid.clone().unwrap_or_default().to_string(),
                 };
                 let table = Table::new(clef_rows.iter().map(|v| v.1.clone()), widths)
                     .column_spacing(0)
@@ -110,8 +127,12 @@ pub fn render(app: &mut App, f: &mut Frame) {
                 };
 
                 let status_details = Paragraph::new(format!(
-                    "{} | {}    {}   {}  ",
-                    detail.timestap, log_level_detail, detail.exception, detail.event_id
+                    "{} | {}    {}   {} {}  ",
+                    detail.timestap,
+                    log_level_detail,
+                    detail.message,
+                    detail.exception,
+                    detail.event_id
                 ))
                 .style(Style::default().fg(ratatui::style::Color::White))
                 .block(Block::new().padding(block::Padding {

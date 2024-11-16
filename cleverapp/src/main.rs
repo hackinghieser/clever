@@ -1,4 +1,3 @@
-/// Application.
 pub mod app;
 
 /// Terminal events handler.
@@ -12,9 +11,6 @@ pub mod tui;
 
 /// Application updater.
 pub mod update;
-
-// clef parser
-pub mod clef;
 
 pub mod event_log_level;
 
@@ -84,6 +80,7 @@ fn create_app(path: String) -> Result<App<'static>, io::Error> {
     app.filter_list_state.select(Some(0));
     app.event_table_state.select(Some(0));
     app.load_lines(&lines);
+    app.get_event_types();
     Ok(app)
 }
 
