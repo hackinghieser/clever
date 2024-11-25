@@ -1,7 +1,5 @@
 use std::{
-    cell::RefCell,
     fmt::Debug,
-    rc::Rc,
     sync::{Arc, Mutex},
 };
 
@@ -140,7 +138,6 @@ impl EventCollection {
             })
             .collect();
         self.log_levels = Arc::try_unwrap(log_levels).unwrap().into_inner().unwrap();
-
         event_collection
     }
 }
