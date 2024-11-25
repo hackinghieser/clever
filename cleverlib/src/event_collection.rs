@@ -125,7 +125,7 @@ impl EventCollection {
     fn read_events_par(&mut self, events: &Vec<String>) -> Vec<Event> {
         println!("Event Count: {0}", events.len());
         let re = Regex::new(r"\{(\w+|\d+)\}").unwrap();
-        let mut log_levels: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(vec![]));
+        let log_levels: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(vec![]));
         let event_collection = events
             .par_iter()
             .progress()
