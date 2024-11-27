@@ -68,10 +68,7 @@ impl Event {
                 if let Ok(index) = key.parse::<usize>() {
                     properties
                         .get_index(index)
-                        .map_or(format!("{{{}}}", index), |v| {
-                            println!("Index Value: {}", v.1);
-                            v.1.to_string()
-                        })
+                        .map_or(format!("{{{}}}", index), |v| v.1.to_string())
                 } else {
                     properties
                         .get(key)

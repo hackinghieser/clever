@@ -30,11 +30,6 @@ impl EventCollection {
         };
         let event_list = EventCollection::read_events_serie(&mut event_collection, events);
         event_collection.events = event_list;
-        println!("Event collection length: {}", event_collection.events.len());
-        println!(
-            "Event collection types: {}",
-            event_collection.log_levels.len()
-        );
         Some(event_collection)
     }
 
@@ -45,7 +40,6 @@ impl EventCollection {
         };
         let event_list = EventCollection::read_events_par(&mut event_collection, events);
         event_collection.events = event_list;
-        println!("Event collection length: {}", event_collection.events.len());
         Some(event_collection)
     }
 
@@ -59,7 +53,6 @@ impl EventCollection {
         };
         let event_list = EventCollection::read_events_cp(&event_collection, events, callback);
         event_collection.events = event_list;
-        println!("Event collection length: {}", event_collection.events.len());
         Some(event_collection)
     }
 
@@ -68,7 +61,6 @@ impl EventCollection {
         events: Vec<String>,
         callback: T,
     ) -> Vec<Event> {
-        println!("Event Count: {0}", events.len());
         let re = Regex::new(r"\{(\w+|\d+)\}").unwrap();
         let event_collection = events
             .par_iter()
@@ -102,7 +94,6 @@ impl EventCollection {
     }
 
     fn read_events_serie(&mut self, events: &[String]) -> Vec<Event> {
-        println!("Event Count: {0}", events.len());
         let re = Regex::new(r"\{(\w+|\d+)\}").unwrap();
         let mut log_levels: Vec<String> = vec![];
         let event_collection = events
@@ -123,7 +114,6 @@ impl EventCollection {
     }
 
     fn read_events_par(&mut self, events: &Vec<String>) -> Vec<Event> {
-        println!("Event Count: {0}", events.len());
         let re = Regex::new(r"\{(\w+|\d+)\}").unwrap();
         let log_levels: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(vec![]));
         let event_collection = events
