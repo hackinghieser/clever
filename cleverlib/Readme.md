@@ -85,10 +85,6 @@ fn main() {
 
 The library automatically detects unique log levels during event processing. Detected levels are stored in `event_collection.log_levels`.
 
-## Error Handling
-
-Methods return `Option<EventCollection>` to handle potential parsing errors.
-
 ## Dependencies
 
 - Requires Rayon for parallel processing
@@ -97,7 +93,3 @@ Methods return `Option<EventCollection>` to handle potential parsing errors.
 ## Contributing
 
 Contributions welcome! Please submit pull requests or open issues on the project repository.
-
-## License
-
-[Specify your license]
