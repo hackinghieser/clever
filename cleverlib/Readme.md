@@ -11,15 +11,6 @@ A flexible Rust library for processing and analyzing log events with parallel an
 - Automatic log level detection
 - Simple and intuitive API
 
-## Installation
-
-Add the following to your `Cargo.toml`:
-
-```toml
-[dependencies]
-cleverlib = "0.1.1"
-```
-
 ## Basic Usage
 
 ```rust
