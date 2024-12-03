@@ -1,20 +1,11 @@
 [package]
 name = "cleverlib"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 repository = "https://github.com/hackinghieser/clever"
 description = "cleverlib makes it easy to parse compact log events (clef)"
 readme = "Readme.md"
-keywords = [
-  "clef",
-  "compact",
-  "logs",
-  "event",
-  "compact log event format",
-  "format",
-  "parser",
-  "json",
-]
+keywords = ["clef", "logs", "event", "parser", "json"]
 license = "MIT"
 categories = ["parser-implementations", "parsing"]
 [dependencies]
