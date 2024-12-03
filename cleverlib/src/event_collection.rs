@@ -8,13 +8,22 @@ use indicatif::{ParallelProgressIterator, ProgressIterator};
 use rayon::prelude::*;
 use regex::Regex;
 
+/// Represents a collection of log events with support for parallel and serial processing.
+///
+/// The `EventCollection` struct provides methods to create, filter, and manage log events
+/// with various processing strategies including serial, parallel, and callback-based approaches.
 #[derive(Default)]
 pub struct EventCollection {
+    /// A vector of parsed log events.
     pub events: Vec<Event>,
+    /// A vector of unique log levels found in the events.
     pub log_levels: Vec<String>,
 }
 
 impl Debug for EventCollection {
+    /// Custom debug implementation for `EventCollection`.
+    ///
+    /// This implementation simplifies the debug output to focus on the events.
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("EventCollection")
             .field("events", &self.events)
@@ -23,6 +32,17 @@ impl Debug for EventCollection {
 }
 
 impl EventCollection {
+    /// Creates an `EventCollection` using serial event processing.
+    ///
+    /// This method processes events sequentially, tracking progress and identifying unique log levels.
+    ///
+    /// # Arguments
+    ///
+    /// * `events` - A reference to a vector of log event strings
+    ///
+    /// # Returns
+    ///
+    /// An `Option<EventCollection>` containing the processed events
     pub fn create(events: &Vec<String>) -> Option<Self> {
         let mut event_collection = EventCollection {
             events: vec![],
@@ -33,6 +53,17 @@ impl EventCollection {
         Some(event_collection)
     }
 
+    /// Creates an `EventCollection` using parallel event processing.
+    ///
+    /// This method processes events concurrently using Rayon's parallel iterator.
+    ///
+    /// # Arguments
+    ///
+    /// * `events` - A reference to a vector of log event strings
+    ///
+    /// # Returns
+    ///
+    /// An `Option<EventCollection>` containing the processed events
     pub fn create_par(events: &Vec<String>) -> Option<Self> {
         let mut event_collection = EventCollection {
             events: vec![],
@@ -43,6 +74,22 @@ impl EventCollection {
         Some(event_collection)
     }
 
+    /// Creates an `EventCollection` with a custom progress callback.
+    ///
+    /// This method allows for custom progress tracking during event processing.
+    ///
+    /// # Type Parameters
+    ///
+    /// * `T` - A closure that can be called with a `usize` parameter for progress tracking
+    ///
+    /// # Arguments
+    ///
+    /// * `events` - A vector of log event strings
+    /// * `callback` - A closure to track processing progress
+    ///
+    /// # Returns
+    ///
+    /// An `Option<EventCollection>` containing the processed events
     pub fn create_cp<T: Fn(usize) + Send + Sync + 'static>(
         events: Vec<String>,
         callback: T,
@@ -56,6 +103,20 @@ impl EventCollection {
         Some(event_collection)
     }
 
+    /// Internal method to process events with a custom progress callback.
+    ///
+    /// # Safety and Performance
+    ///
+    /// Uses Rayon's parallel iterator for concurrent event processing.
+    ///
+    /// # Arguments
+    ///
+    /// * `events` - A vector of log event strings
+    /// * `callback` - A closure for progress tracking
+    ///
+    /// # Returns
+    ///
+    /// A vector of processed `Event` instances
     fn read_events_cp<T: Fn(usize) + Send + Sync + 'static>(
         &self,
         events: Vec<String>,
@@ -73,6 +134,15 @@ impl EventCollection {
         event_collection
     }
 
+    /// Filters events by log level in parallel using case-insensitive comparison.
+    ///
+    /// # Arguments
+    ///
+    /// * `log_level` - The log level to filter by
+    ///
+    /// # Returns
+    ///
+    /// A vector of references to `Event` instances matching the specified log level
     pub fn filter_log_level_par(&self, log_level: &str) -> Vec<&Event> {
         self.events
             .par_iter()
@@ -80,6 +150,15 @@ impl EventCollection {
             .collect()
     }
 
+    /// Filters events by log level in parallel with a fallback for events without a log level.
+    ///
+    /// # Arguments
+    ///
+    /// * `log_level` - The log level to filter by
+    ///
+    /// # Returns
+    ///
+    /// A vector of references to `Event` instances matching the specified log level
     pub fn filter_log_level(&self, log_level: &str) -> Vec<&Event> {
         self.events
             .par_iter()
@@ -93,6 +172,15 @@ impl EventCollection {
             .collect()
     }
 
+    /// Internal method to read events serially with progress tracking.
+    ///
+    /// # Arguments
+    ///
+    /// * `events` - A slice of log event strings
+    ///
+    /// # Returns
+    ///
+    /// A vector of processed `Event` instances with tracked log levels
     fn read_events_serie(&mut self, events: &[String]) -> Vec<Event> {
         let re = Regex::new(r"\{(\w+|\d+)\}").unwrap();
         let mut log_levels: Vec<String> = vec![];
@@ -113,6 +201,15 @@ impl EventCollection {
         event_collection
     }
 
+    /// Internal method to read events in parallel with progress tracking.
+    ///
+    /// # Arguments
+    ///
+    /// * `events` - A reference to a vector of log event strings
+    ///
+    /// # Returns
+    ///
+    /// A vector of processed `Event` instances with tracked log levels
     fn read_events_par(&mut self, events: &Vec<String>) -> Vec<Event> {
         let re = Regex::new(r"\{(\w+|\d+)\}").unwrap();
         let log_levels: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(vec![]));
