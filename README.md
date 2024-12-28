@@ -1,41 +1,86 @@
-[![Clever Release Build](https://github.com/AlexanderHieser/clever/actions/workflows/release_build.yml/badge.svg)](https://github.com/AlexanderHieser/clever/actions/workflows/release_build.yml)
-[![Clever Debug Build](https://github.com/hackinghieser/clever/actions/workflows/debug_build.yml/badge.svg?event=push)](https://github.com/hackinghieser/clever/actions/workflows/debug_build.yml)
-# clever
+# CleverLib
 
-Clever is a simple cli application to view \*.clef logs. Written in Rust &amp; powered by Ratatui
+A flexible Rust library for processing and analyzing log events with parallel and serial processing strategies.
 
-![clever](./images/clever.gif)
+## Features
 
-# Installation
+- Multiple event processing strategies
+  - Serial processing
+  - Parallel processing
+- Efficient log event parsing
+- Automatic log level detection
+- Simple and intuitive API
 
-Currently clever cannot be installed through any package manager. Contributions regarding this are welcomed.
+## Basic Usage
 
-To install it manually, just download from the release page and add it to our path variable.
+```rust
+use cleverlib::event_collection::EventCollection;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
 
-# Usage
+fn main() {
+    // Read log file lines
+    let file: File = File::open("events.log").expect("Failed to open log file");
+    let lines: Vec<String> = BufReader::new(file)
+        .lines()
+        .collect::<Result<Vec<String>, std::io::Error>>()
+        .expect("Failed to read lines");
 
-Simply by:
+    // Create event collection
+    let event_collection: EventCollection = EventCollection::create(&lines).unwrap();
 
-`clever path\to\file`
+    // Print detected log levels
+    println!("Log Levels: {:?}", event_collection.log_levels);
 
-a simple cli is also planned to nicly format the logs. Use:
+    // Filter events by log level
+    let error_events: Vec<&Event> = event_collection.filter_log_level("error");
+    println!("Error Events: {}", error_events.len());
+}
+```
 
-`clever --help`
+## Parallel Processing
 
-to print the available cli commands & options.
+```rust
+use cleverlib::event_collection::EventCollection;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
 
-# Notes
+fn main() {
+    let file: File = File::open("large_events.log").expect("Failed to open log file");
+    let lines: Vec<String> = BufReader::new(file)
+        .lines()
+        .collect::<Result<Vec<String>, std::io::Error>>()
+        .expect("Failed to read lines");
 
-Currently only templates using {PropertyName} are rendering, support for index rendering and other message template features is planned.
+    // Use parallel processing for large log files
+    let event_collection: EventCollection = EventCollection::create_par(&lines).unwrap();
 
-# Contribution
+    println!("Total Events: {}", event_collection.events.len());
+    println!("Unique Log Levels: {:?}", event_collection.log_levels);
+}
+```
 
-Simply open a PR. Repo is using convetional commits, please stick to it if you want to contribute. Apart from this, nothing special to consider right now.
+## Performance Strategies
 
-# Links
+1. **Serial Processing**: `create()` - Best for smaller log files
+2. **Parallel Processing**: `create_par()` - Recommended for large log files
 
-- <http://clef-json.org>
+## Key Methods
 
-- <https://messagetemplates.org>
+- `create(&lines)`: Process events serially
+- `create_par(&lines)`: Process events in parallel
+- `filter_log_level(level)`: Filter events by log level
+- `filter_log_level_par(level)`: Parallel log level filtering
 
-- <https://ratatui.rs>
+## Log Level Detection
+
+The library automatically detects unique log levels during event processing. Detected levels are stored in `event_collection.log_levels`.
+
+## Dependencies
+
+- Requires Rayon for parallel processing
+- Uses Regex for log parsing
+
+## Contributing
+
+Contributions welcome! Please submit pull requests or open issues on the project repository.
