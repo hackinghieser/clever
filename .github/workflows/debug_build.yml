@@ -2,9 +2,9 @@ name: Clever Debug Build
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 env:
   CARGO_TERM_COLOR: always
@@ -30,57 +30,33 @@ jobs:
 
       - name: Print the changelog
         run: cat "${{ steps.git-cliff.outputs.changelog }}"
+
   build-linux:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build
-      run: cargo build  --verbose
-      working-directory: cleverapp
-    - name: Run tests
-      run: cargo test --verbose
-      working-directory: cleverapp
-    - name: 'Upload Artifact'
-      uses: actions/upload-artifact@v4.3.1
-      with:
-        name: clever-linux
-        path: /home/runner/work/clever/clever/target/debug/clever
-        retention-days: 5
+      - uses: actions/checkout@v4
+      - name: Build
+        run: cargo build  --verbose
+      - name: Run tests
+        run: cargo test --verbose
 
-        
   build-windows:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build
-      run: cargo build --verbose
-      working-directory: cleverapp
-    - name: Run tests
-      run: cargo test --verbose
-      working-directory: cleverapp
-    - name: 'Upload Artifact'
-      uses: actions/upload-artifact@v4.3.1
-      with:
-        name: clever-windows
-        path: D:\a\clever\clever\target\debug\celver.exe
-        retention-days: 5
-  
+      - uses: actions/checkout@v4
+      - name: Build
+        run: cargo build --verbose
+      - name: Run tests
+        run: cargo test --verbose
+
   build-mac:
     runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build
-      run: cargo build --verbose
-      working-directory: cleverapp
-    - name: Run tests
-      run: cargo test --verbose
-      working-directory: cleverapp
-    - name: 'Upload Artifact'
-      uses: actions/upload-artifact@v4.3.1
-      with:
-        name: clever-macos
-        path: /Users/runner/work/clever/clever/target/debug/clever
-        retention-days: 5
+      - uses: actions/checkout@v4
+      - name: Build
+        run: cargo build --verbose
+      - name: Run tests
+        run: cargo test --verbose
