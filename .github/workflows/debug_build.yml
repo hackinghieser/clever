@@ -36,6 +36,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Tests
+        run: cargo test
       - name: Build
         run: cargo build  --verbose
       - name: Run tests
@@ -46,6 +48,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Tests
+        run: cargo test
       - name: Build
         run: cargo build --verbose
       - name: Run tests
@@ -56,6 +60,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Tests
+        run: cargo test
       - name: Build
         run: cargo build --verbose
       - name: Run tests
