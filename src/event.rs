@@ -88,7 +88,7 @@ impl Event {
     /// # Examples
     ///
     /// ```
-    /// use your_library::Event;
+    /// use cleverlib::event::Event;
     /// use regex::Regex;
     ///
     /// let json_event = r#"{"@t": "2024-01-15", "@mt": "User {Username} logged in", "Username": "john_doe"}"#;
@@ -96,6 +96,7 @@ impl Event {
     /// let event = Event::create(json_event.to_string(), &regex);
     /// ```
     pub fn create(raw_event: String, regex: &Regex) -> Option<Self> {
+        println!("{}", &raw_event);
         let raw_json: Value = serde_json::from_str(raw_event.as_str()).unwrap();
         let mut event: Event = serde_json::from_value(raw_json.clone()).unwrap();
         event.raw_string = raw_event;
@@ -131,6 +132,7 @@ impl Event {
     /// ```
     /// use indexmap::IndexMap;
     /// use serde_json::json;
+    /// use cleverlib::event::Event;
     /// use regex::Regex;
     ///
     /// let template = "User {Username} performed {Action}";
@@ -142,14 +144,15 @@ impl Event {
     /// let resolved = Event::generate_message_template(template, &properties, &regex);
     /// // resolved will be "User john_doe performed login"
     /// ```
-    fn generate_message_template(
+    pub fn generate_message_template(
         template: &str,
         properties: &IndexMap<String, Value>,
         regex: &Regex,
     ) -> String {
-        regex
+        let res = regex
             .replace_all(template, |caps: &regex::Captures| {
                 let key = &caps[1];
+                println!("Key {}", key);
                 if let Ok(index) = key.parse::<usize>() {
                     properties
                         .get_index(index)
@@ -157,9 +160,16 @@ impl Event {
                 } else {
                     properties
                         .get(key)
-                        .map_or(format!("{{{}}}", key), |v| v.to_string())
+                        .map_or(format!("{{{}}}", key), |v| match v {
+                            Value::String(v) => v.as_str().to_string(),
+                            Value::Number(v) => v.to_string(),
+                            Value::Bool(v) => v.to_string(),
+                            _ => v.to_string(),
+                        })
                 }
             })
-            .to_string()
+            .to_string();
+        println!("Message: {}", &res);
+        res
     }
 }
