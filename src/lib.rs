@@ -1,8 +1,10 @@
+pub mod clever_parser_options;
 pub mod event;
 pub mod event_collection;
 
 #[cfg(test)]
 mod tests {
+    use clever_parser_options::CleverParserOptions;
     use event_collection::EventCollection;
 
     use super::*;
@@ -14,7 +16,12 @@ mod tests {
         ];
 
         println!("{:?}", json_entries);
-        let collection = EventCollection::create(&json_entries.into_iter().collect()).unwrap();
+        let options = CleverParserOptions {
+            ignore_errors: Some(true),
+            debug: Some(true),
+        };
+        let collection =
+            EventCollection::create(&json_entries.into_iter().collect(), Some(&options)).unwrap();
         assert_eq!(collection.events.len(), 1)
     }
 
@@ -39,7 +46,13 @@ mod tests {
         ];
 
         println!("{:?}", json_entries);
-        let collection = EventCollection::create(&json_entries.into_iter().collect()).unwrap();
+        let options = CleverParserOptions {
+            ignore_errors: Some(true),
+            debug: Some(true),
+        };
+
+        let collection =
+            EventCollection::create(&json_entries.into_iter().collect(), Some(&options)).unwrap();
         assert_eq!(collection.events.len(), 15)
     }
 
@@ -50,7 +63,13 @@ mod tests {
         ];
 
         println!("{:?}", json_entries);
-        let collection = EventCollection::create(&json_entries.into_iter().collect()).unwrap();
+        let options = CleverParserOptions {
+            ignore_errors: Some(true),
+            debug: Some(true),
+        };
+
+        let collection =
+            EventCollection::create(&json_entries.into_iter().collect(), Some(&options)).unwrap();
 
         assert_eq!(collection.events.len(), 1);
         assert!(

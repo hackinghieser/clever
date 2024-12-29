@@ -3,7 +3,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use crate::event::Event;
+use crate::{clever_parser_options::CleverParserOptions, event::Event};
 use indicatif::{ParallelProgressIterator, ProgressIterator};
 use rayon::prelude::*;
 use regex::Regex;
@@ -43,14 +43,24 @@ impl EventCollection {
     /// # Returns
     ///
     /// An `Option<EventCollection>` containing the processed events
-    pub fn create(events: &Vec<String>) -> Option<Self> {
+    pub fn create(
+        events: &Vec<String>,
+        options: Option<&CleverParserOptions>,
+    ) -> Result<Self, serde_json::Error> {
         let mut event_collection = EventCollection {
             events: vec![],
             log_levels: vec![],
         };
-        let event_list = EventCollection::read_events_serie(&mut event_collection, events);
-        event_collection.events = event_list;
-        Some(event_collection)
+        let event_list = EventCollection::read_events_serie(
+            &mut event_collection,
+            events,
+            options.unwrap().ignore_errors.as_ref().unwrap().to_owned(),
+        );
+        event_collection.events = match event_list {
+            Ok(value) => value,
+            Err(e) => return Err(e),
+        };
+        Ok(event_collection)
     }
 
     /// Creates an `EventCollection` using parallel event processing.
@@ -181,24 +191,53 @@ impl EventCollection {
     /// # Returns
     ///
     /// A vector of processed `Event` instances with tracked log levels
-    fn read_events_serie(&mut self, events: &[String]) -> Vec<Event> {
-        let re = Regex::new(r"\{(\w+|\d+)\}").unwrap();
-        let mut log_levels: Vec<String> = vec![];
-        let event_collection = events
-            .iter()
-            .progress()
-            .map(|e| {
-                let e = Event::create(e.to_string(), &re).unwrap();
-                if let Some(level) = e.level.clone() {
-                    if !log_levels.contains(&level) {
-                        log_levels.push(level)
+    fn read_events_serie(
+        &mut self,
+        events: &[String],
+        ignore_erros: bool,
+    ) -> Result<Vec<Event>, serde_json::Error> {
+        if ignore_erros {
+            let re = Regex::new(r"\{(\w+|\d+)\}").unwrap();
+            let mut log_levels: Vec<String> = vec![];
+            let event_collection = events
+                .iter()
+                .progress()
+                .filter_map(|e| match Event::create(e.to_string(), &re) {
+                    Ok(event) => {
+                        if let Some(level) = event.level.clone() {
+                            if !log_levels.contains(&level) {
+                                log_levels.push(level)
+                            }
+                        }
+                        Some(event)
                     }
-                }
-                e
-            })
-            .collect();
-        self.log_levels = log_levels;
-        event_collection
+                    Err(err) => {
+                        println!("Could not parse event: {}, Error: {}", e, err);
+                        None
+                    }
+                })
+                .collect::<Vec<Event>>();
+            self.log_levels = log_levels;
+            Ok(event_collection)
+        } else {
+            let re = Regex::new(r"\{(\w+|\d+)\}").unwrap();
+            let mut log_levels: Vec<String> = vec![];
+            let event_collection = events
+                .iter()
+                .progress()
+                .map(|e| {
+                    let event = Event::create(e.to_string(), &re).unwrap();
+                    if let Some(level) = event.level.clone() {
+                        if !log_levels.contains(&level) {
+                            log_levels.push(level)
+                        }
+                    }
+                    event
+                })
+                .collect();
+            self.log_levels = log_levels;
+            Ok(event_collection)
+        }
     }
 
     /// Internal method to read events in parallel with progress tracking.

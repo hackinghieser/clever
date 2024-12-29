@@ -95,17 +95,17 @@ impl Event {
     /// let regex = Regex::new(r"\{(\w+)\}").unwrap();
     /// let event = Event::create(json_event.to_string(), &regex);
     /// ```
-    pub fn create(raw_event: String, regex: &Regex) -> Option<Self> {
+    pub fn create(raw_event: String, regex: &Regex) -> Result<Self, serde_json::Error> {
         println!("{}", &raw_event);
-        let raw_json: Value = serde_json::from_str(raw_event.as_str()).unwrap();
-        let mut event: Event = serde_json::from_value(raw_json.clone()).unwrap();
+        let raw_json: Value = serde_json::from_str(raw_event.as_str())?;
+        let mut event: Event = serde_json::from_value(raw_json.clone())?;
         event.raw_string = raw_event;
         event.message = Some(Event::generate_message_template(
             &event.template,
             &event.properties,
             regex,
         ));
-        Some(event)
+        Ok(event)
     }
 
     /// Generates a resolved message by interpolating template placeholders with event properties.
