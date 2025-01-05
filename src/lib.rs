@@ -81,4 +81,76 @@ mod tests {
             "User user123 logged in from 192.168.1.1".to_string()
         );
     }
+
+    #[test]
+    fn read_event_without_log_level() {
+        let json_entries: [String; 2] = [
+            r#"{"@t":"2024-12-28T10:15:22.789Z","@mt":"Cache entry expired for {Key} after {TimeToLiveSeconds}s","Key":"session:user:123","TimeToLiveSeconds":3600}"#.to_string(),
+            r#"{"@t":"2019-12-10T13:33:23.0970926Z","@mt":"An unknown error occurred","@l":"Error","@x":"Exception stack trace","SourceContext":"MySourceContext","Scope":["FirstScope",1850562557,"198441851"],"MachineName":"MY-MACHINE","EnvironmentUserName":"WORKGROUP\\SYSTEM","ExceptionDetail":{"HResult":-2146233087,"Message":"Internal Error","Source":"System.ServiceModel","Action":null,"Code":{"IsPredefinedFault":true,"IsSenderFault":true,"IsReceiverFault":false,"Namespace":"http://schemas.xmlsoap.org/soap/envelope/","Name":"Client","SubCode":null},"Reason":{"Translations":[{"XmlLang":"","Text":"Internal Error"}]},"Type":"System.ServiceModel.FaultException"},"AssemblyVersion":"2.1.0.1017"}"#.to_string()
+        ];
+
+        println!("{:?}", json_entries);
+        let options = CleverParserOptions {
+            ignore_errors: Some(true),
+            debug: Some(true),
+        };
+
+        let collection =
+            EventCollection::create(&json_entries.into_iter().collect(), Some(&options)).unwrap();
+
+        assert_eq!(collection.events.len(), 2);
+        assert!(
+            collection.events.first().unwrap().level.is_none(),
+            "LogLevel set but not provided"
+        );
+        assert_eq!(
+            collection.events.first().unwrap().message.clone().unwrap(),
+            "Cache entry expired for session:user:123 after 3600s".to_string()
+        );
+    }
+
+    #[test]
+    fn read_event_with_mising_props() {
+        let json_entries: [String; 2] = [
+            r#"{"@t":"2024-12-28T10:15:22.789Z","@mt":"Cache entry expired for {Key} after {TimeToLiveSeconds}s","TimeToLiveSeconds":3600}"#.to_string(),
+            r#"{"@t":"2019-12-10T13:33:23.0970926Z","@mt":"An unknown error occurred","@l":"Error","@x":"Exception stack trace","SourceContext":"MySourceContext","Scope":["FirstScope",1850562557,"198441851"],"MachineName":"MY-MACHINE","EnvironmentUserName":"WORKGROUP\\SYSTEM","ExceptionDetail":{"HResult":-2146233087,"Message":"Internal Error","Source":"System.ServiceModel","Action":null,"Code":{"IsPredefinedFault":true,"IsSenderFault":true,"IsReceiverFault":false,"Namespace":"http://schemas.xmlsoap.org/soap/envelope/","Name":"Client","SubCode":null},"Reason":{"Translations":[{"XmlLang":"","Text":"Internal Error"}]},"Type":"System.ServiceModel.FaultException"},"AssemblyVersion":"2.1.0.1017"}"#.to_string()
+        ];
+
+        println!("{:?}", json_entries);
+        let options = CleverParserOptions {
+            ignore_errors: Some(true),
+            debug: Some(true),
+        };
+
+        let collection =
+            EventCollection::create(&json_entries.into_iter().collect(), Some(&options)).unwrap();
+
+        assert_eq!(collection.events.len(), 2);
+        assert_eq!(
+            collection.events.first().unwrap().message.clone().unwrap(),
+            "Cache entry expired for {Key} after 3600s".to_string()
+        );
+    }
+
+    #[test]
+    fn read_event_with_indexed_props() {
+        let json_entries: [String; 1] = [
+            r#"{"@t":"2024-12-28T10:15:22.789Z","@mt":"Cache entry expired for {0} after {1}s","Name":"Testname","TimeToLiveSeconds":3600}"#.to_string(),
+        ];
+
+        println!("{:?}", json_entries);
+        let options = CleverParserOptions {
+            ignore_errors: Some(false),
+            debug: Some(true),
+        };
+
+        let collection =
+            EventCollection::create(&json_entries.into_iter().collect(), Some(&options)).unwrap();
+
+        assert_eq!(collection.events.len(), 1);
+        assert_eq!(
+            collection.events.first().unwrap().message.clone().unwrap(),
+            "Cache entry expired for Testname after 3600s".to_string()
+        );
+    }
 }
