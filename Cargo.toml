@@ -1,6 +1,7 @@
 [package]
 name = "cleverlib"
-version = "0.1.5"
+version = "0.1.6"
+authors = ["Alexander Hieser"]
 edition = "2021"
 repository = "https://github.com/hackinghieser/clever"
 description = "cleverlib makes it easy to parse compact log events (clef)"
