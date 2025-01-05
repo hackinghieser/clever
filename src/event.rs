@@ -96,7 +96,6 @@ impl Event {
     /// let event = Event::create(json_event.to_string(), &regex);
     /// ```
     pub fn create(raw_event: String, regex: &Regex) -> Result<Self, serde_json::Error> {
-        println!("{}", &raw_event);
         let raw_json: Value = serde_json::from_str(raw_event.as_str())?;
         let mut event: Event = serde_json::from_value(raw_json.clone())?;
         event.raw_string = raw_event;
@@ -152,11 +151,15 @@ impl Event {
         let res = regex
             .replace_all(template, |caps: &regex::Captures| {
                 let key = &caps[1];
-                println!("Key {}", key);
                 if let Ok(index) = key.parse::<usize>() {
                     properties
                         .get_index(index)
-                        .map_or(format!("{{{}}}", index), |v| v.1.to_string())
+                        .map_or(format!("{{{}}}", index), |v| match v.1 {
+                            Value::String(v) => v.as_str().to_string(),
+                            Value::Number(v) => v.to_string(),
+                            Value::Bool(v) => v.to_string(),
+                            _ => v.1.to_string(),
+                        })
                 } else {
                     properties
                         .get(key)
@@ -169,7 +172,6 @@ impl Event {
                 }
             })
             .to_string();
-        println!("Message: {}", &res);
         res
     }
 }
