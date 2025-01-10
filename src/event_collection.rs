@@ -1,3 +1,4 @@
+use core::panic;
 use std::{
     fmt::Debug,
     sync::{Arc, Mutex},
@@ -222,17 +223,23 @@ impl EventCollection {
         } else {
             let re = Regex::new(r"\{(\w+|\d+)\}").unwrap();
             let mut log_levels: Vec<String> = vec![];
+            let mut index: i128 = 1;
             let event_collection = events
                 .iter()
                 .progress()
-                .map(|e| {
-                    let event = Event::create(e.to_string(), &re).unwrap();
-                    if let Some(level) = event.level.clone() {
-                        if !log_levels.contains(&level) {
-                            log_levels.push(level)
+                .filter_map(|e| match Event::create(e.to_string(), &re) {
+                    Ok(event) => {
+                        if let Some(level) = event.level.clone() {
+                            if !log_levels.contains(&level) {
+                                log_levels.push(level)
+                            }
                         }
+                        index += 1;
+                        Some(event)
                     }
-                    event
+                    Err(err) => {
+                        panic!("Error parsing event no. {}\r\n{}", index, err)
+                    }
                 })
                 .collect();
             self.log_levels = log_levels;
